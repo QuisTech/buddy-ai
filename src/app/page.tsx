@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import CameraView, { CameraViewHandle } from "@/components/CameraView";
 import VoiceInterface from "@/components/VoiceInterface";
 import ConversationList, { Message } from "@/components/ConversationList";
@@ -17,9 +17,9 @@ import {
   Timer, 
   StopCircle,
   Video,
-  ChevronRight,
   Target,
-  Send
+  Send,
+  Zap
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -51,10 +51,10 @@ export default function StudyBuddyPage() {
     const userMsg: Message = { role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
     setIsThinking(true);
-    setChatInput(""); // Clear input if it came from chat
+    setChatInput(""); 
 
     try {
-      // Sharpened vision triggers to avoid accidental activation for general queries
+      // Vision triggers refined
       const visualTriggers = ["look at", "see this", "this diagram", "this page", "explain this image", "what is in this", "scan this"];
       const needsVision = visualTriggers.some(t => text.toLowerCase().includes(t));
 
@@ -63,16 +63,14 @@ export default function StudyBuddyPage() {
       if (needsVision && cameraRef.current) {
         const photo = cameraRef.current.capture();
         if (photo) {
-          // Use visual explanation flow
           const result = await visualExplanation({ 
             photoDataUri: photo, 
             context: text 
           });
           
-          // Optional: Get annotations for extra points
           const annotationResult = await dynamicAnnotation({
             photoDataUri: photo,
-            explanation: text
+            explanation: result.explanationText
           });
 
           response = {
@@ -82,7 +80,6 @@ export default function StudyBuddyPage() {
           };
         }
       } else {
-        // Normal conversational flow
         const history = messages.map(m => ({
           role: m.role === "user" ? "user" : "model" as any,
           content: m.content
@@ -98,17 +95,20 @@ export default function StudyBuddyPage() {
           audioUrl: result.responseAudio
         };
 
-        // Only clarify if it's a longer text that actually looks like a confusing study topic
-        const potentialConcepts = ["how", "why", "meaning", "process", "difference"];
-        const isAcademicQuery = potentialConcepts.some(c => text.toLowerCase().includes(c));
+        const academicTriggers = ["how", "why", "meaning", "process", "difference", "explain"];
+        const isAcademicQuery = academicTriggers.some(c => text.toLowerCase().includes(c));
 
-        if (text.length > 50 && isAcademicQuery && !needsVision) {
-          const clarification = await adaptiveClarification({
-            concept: text,
-            studentConfusion: text
-          });
-          if (clarification.clarificationType !== 'alternative-explanation') {
-             response.content += `\n\n💡 Proactive Hint: ${clarification.clarificationText}`;
+        if (text.length > 30 && isAcademicQuery && !needsVision) {
+          try {
+            const clarification = await adaptiveClarification({
+              concept: text,
+              studentConfusion: text
+            });
+            if (clarification.clarificationType !== 'alternative-explanation') {
+               response.content += `\n\n💡 Hint: ${clarification.clarificationText}`;
+            }
+          } catch (e) {
+            // Silently fail clarification to keep main response
           }
         }
       }
@@ -125,11 +125,12 @@ export default function StudyBuddyPage() {
       console.error(error);
       toast({
         variant: "destructive",
-        title: "Buddy got confused",
-        description: "Sorry, I had trouble processing that. Try again?"
+        title: "Buddy hit a snag",
+        description: "I'm having trouble processing that right now."
       });
     } finally {
       setIsThinking(false);
+      // Voice remains active if it was already active, allowing hands-free follow-ups
     }
   };
 
@@ -140,53 +141,57 @@ export default function StudyBuddyPage() {
 
   const toggleSession = () => {
     if (sessionActive) {
-      // End session - generate summary
       setSummary({
-        topics: ["AI Vision", "Human Biology", "Complex Diagrams"],
+        topics: ["AI Vision", "Interactive Tutoring", "Active Learning"],
         keyTakeaways: [
-          "Understanding photosynthesis via dynamic annotations.",
-          "Voice interaction leads to 30% faster comprehension.",
-          "Visual grounding is essential for tutoring."
+          "Successfully used vision to analyze study materials.",
+          "Maintained a continuous dialogue through hands-free interaction.",
+          "Explored concepts with adaptive clarifications."
         ],
-        furtherStudy: ["Calvin Cycle", "Light reactions", "Electron transport chain"]
+        furtherStudy: ["Prompt Engineering", "Computer Vision Basics", "Voice UX Design"]
       });
+      setIsListening(false);
     } else {
       setSummary(null);
       setMessages([]);
+      setIsListening(true); // Default to listening in a new session
     }
     setSessionActive(!sessionActive);
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col font-body">
+    <div className="min-h-screen bg-background flex flex-col font-body selection:bg-primary/20">
       {/* Header */}
-      <header className="glass-morphism h-16 flex items-center justify-between px-6 sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <div className="bg-primary w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg">
-            <BrainCircuit size={24} />
+      <header className="glass-morphism h-20 flex items-center justify-between px-6 sticky top-0 z-50">
+        <div className="flex items-center gap-3">
+          <div className="bg-primary w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-xl rotate-3">
+            <BrainCircuit size={28} />
           </div>
           <div>
-            <h1 className="font-headline font-bold text-xl leading-none">Buddy</h1>
-            <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Interactive Agent</span>
+            <h1 className="font-headline font-bold text-2xl tracking-tight leading-none">Buddy</h1>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Always Active</span>
+            </div>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           {sessionActive && (
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-accent/10 text-accent rounded-full text-sm font-medium">
-              <Timer size={14} className="animate-pulse" />
-              <span>08:42</span>
+            <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-primary/5 border border-primary/10 rounded-full">
+              <Timer size={16} className="text-primary animate-pulse" />
+              <span className="text-sm font-bold font-headline">Live Session</span>
             </div>
           )}
           <Button 
             variant={sessionActive ? "destructive" : "default"} 
             onClick={toggleSession}
-            className="rounded-full shadow-lg h-10 px-6 font-headline"
+            className="rounded-full shadow-lg h-12 px-8 font-headline text-md transition-all active:scale-95"
           >
             {sessionActive ? (
-              <><StopCircle className="mr-2 h-4 w-4" /> End Session</>
+              <><StopCircle className="mr-2 h-5 w-5" /> Finish</>
             ) : (
-              <><Video className="mr-2 h-4 w-4" /> Start Studying</>
+              <><Zap className="mr-2 h-5 w-5 fill-current" /> Start Session</>
             )}
           </Button>
         </div>
@@ -196,17 +201,22 @@ export default function StudyBuddyPage() {
       <main className="flex-1 container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Vision and Controls */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          <div className="relative">
+          <div className="relative group">
              <CameraView ref={cameraRef} />
-             <div className="absolute bottom-4 left-4 right-4 flex justify-center pointer-events-none">
-                <div className="bg-black/60 backdrop-blur-md text-white px-4 py-2 rounded-full text-xs flex items-center gap-2 pointer-events-auto shadow-2xl">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  Live Vision Enabled
+             <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md text-white px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border border-white/20">
+                Eye Level Vision
+             </div>
+             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex justify-center w-full px-6">
+                <div className="bg-white/90 backdrop-blur-xl text-foreground px-6 py-3 rounded-full text-xs font-medium flex items-center gap-3 shadow-2xl border border-primary/10 transition-transform group-hover:scale-105">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-ping" />
+                  Buddy can see what you're showing
                 </div>
              </div>
           </div>
 
-          <Card className="flex-1 p-8 bg-white/50 border-accent/20 flex flex-col items-center justify-center gap-8 min-h-[300px]">
+          <Card className="flex-1 p-10 bg-gradient-to-br from-white to-primary/5 border-primary/10 flex flex-col items-center justify-center gap-8 min-h-[350px] shadow-inner relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+            
             {sessionActive ? (
               <VoiceInterface 
                 onSpeak={handleUserQuery}
@@ -216,15 +226,15 @@ export default function StudyBuddyPage() {
               />
             ) : (
               <div className="text-center max-w-sm">
-                <div className="bg-accent/10 w-20 h-20 rounded-full flex items-center justify-center text-accent mx-auto mb-6">
-                  <BookOpen size={40} />
+                <div className="bg-primary/10 w-24 h-24 rounded-3xl flex items-center justify-center text-primary mx-auto mb-8 rotate-12 shadow-lg">
+                  <BookOpen size={48} />
                 </div>
-                <h2 className="text-2xl font-headline font-bold mb-3">Ready to learn?</h2>
-                <p className="text-muted-foreground mb-8">
-                  I can see your notes, hear your questions, and explain complex concepts with real-time annotations.
+                <h2 className="text-3xl font-headline font-bold mb-4 tracking-tight">Ready to collaborate?</h2>
+                <p className="text-muted-foreground mb-10 leading-relaxed text-lg">
+                  Start a session to enable hands-free voice interaction and real-time visual assistance.
                 </p>
-                <Button onClick={toggleSession} size="lg" className="rounded-full w-full font-headline">
-                  Start Interactive Session
+                <Button onClick={toggleSession} size="lg" className="rounded-full w-full h-14 text-lg font-headline shadow-xl hover:shadow-primary/20 transition-all">
+                  Initialize Agent
                 </Button>
               </div>
             )}
@@ -232,82 +242,86 @@ export default function StudyBuddyPage() {
         </div>
 
         {/* Right Column: Transcription and Summary */}
-        <div className="lg:col-span-5 flex flex-col gap-6 h-full">
+        <div className="lg:col-span-5 flex flex-col gap-6">
           {summary ? (
             <SessionSummary summary={summary} />
           ) : (
-            <Card className="flex-1 flex flex-col overflow-hidden border-accent/20 shadow-xl bg-white/80">
-              <div className="p-4 border-b bg-muted/30 flex items-center justify-between">
-                <h3 className="font-headline font-bold text-sm flex items-center gap-2">
-                  <History className="w-4 h-4 text-primary" />
-                  Session History
-                </h3>
+            <Card className="flex-1 flex flex-col overflow-hidden border-primary/10 shadow-2xl bg-white/90 backdrop-blur-sm">
+              <div className="p-5 border-b bg-primary/5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                   <div className="p-2 bg-primary/10 rounded-lg">
+                      <History className="w-5 h-5 text-primary" />
+                   </div>
+                   <h3 className="font-headline font-bold text-base">Conversation Flow</h3>
+                </div>
                 {messages.length > 0 && (
-                  <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
-                    {messages.length} TURNS
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                    <span className="text-[10px] font-black uppercase text-primary/70">{messages.length} Exchanges</span>
+                  </div>
                 )}
               </div>
-              <div className="flex-1 p-4 bg-muted/5 overflow-hidden">
+              <div className="flex-1 p-6 overflow-hidden">
                 <ConversationList messages={messages} />
               </div>
               
               {sessionActive && (
-                <div className="p-4 bg-white border-t space-y-4">
-                  <form onSubmit={handleChatSubmit} className="flex gap-2">
+                <div className="p-6 bg-white border-t space-y-4">
+                  <form onSubmit={handleChatSubmit} className="flex gap-3">
                     <Input 
-                      placeholder="Ask anything..." 
+                      placeholder="Type a follow-up..." 
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
-                      className="rounded-full border-accent/20 focus-visible:ring-accent"
+                      className="rounded-full h-12 border-primary/10 focus-visible:ring-primary/30 bg-primary/5 px-6"
                       disabled={isThinking}
                     />
                     <Button 
                       type="submit" 
                       size="icon" 
-                      className="rounded-full shrink-0"
+                      className="rounded-full shrink-0 w-12 h-12 shadow-lg hover:rotate-12 transition-transform"
                       disabled={!chatInput.trim() || isThinking}
                     >
-                      <Send className="h-4 w-4" />
+                      <Send className="h-5 w-5" />
                     </Button>
                   </form>
-                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <Sparkles className="w-3 h-3 text-accent" />
-                    <span>Try: "Explain this diagram" or type your follow-up questions.</span>
+                  <div className="flex items-center justify-center gap-4 text-[11px] text-muted-foreground font-medium uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-accent" />
+                      <span>Vision Enabled</span>
+                    </div>
+                    <div className="w-1 h-1 bg-muted-foreground/30 rounded-full" />
+                    <div className="flex items-center gap-1.5">
+                      <Mic className="w-3 h-3 text-primary" />
+                      <span>Hands-free Mode</span>
+                    </div>
                   </div>
                 </div>
               )}
             </Card>
           )}
 
-          {/* Quick Stats / Info */}
+          {/* Quick Stats */}
           <div className="grid grid-cols-2 gap-4">
-             <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
-                <div className="flex items-center gap-2 mb-1">
-                  <Target className="w-4 h-4 text-primary" />
-                  <span className="text-xs font-bold text-primary">ACCURACY</span>
+             <Card className="p-5 border-primary/5 bg-gradient-to-br from-white to-primary/5 shadow-md">
+                <div className="flex items-center gap-3 mb-2">
+                  <Target className="w-5 h-5 text-primary" />
+                  <span className="text-[10px] font-black text-primary/70 uppercase">Uptime</span>
                 </div>
-                <p className="text-xl font-headline font-bold">98.4%</p>
-             </div>
-             <div className="bg-accent/5 p-4 rounded-2xl border border-accent/10">
-                <div className="flex items-center gap-2 mb-1">
-                  <BrainCircuit className="w-4 h-4 text-accent" />
-                  <span className="text-xs font-bold text-accent">AI ENGINE</span>
+                <p className="text-2xl font-headline font-bold">100%</p>
+             </Card>
+             <Card className="p-5 border-accent/5 bg-gradient-to-br from-white to-accent/5 shadow-md">
+                <div className="flex items-center gap-3 mb-2">
+                  <BrainCircuit className="w-5 h-5 text-accent" />
+                  <span className="text-[10px] font-black text-accent/70 uppercase">Model</span>
                 </div>
-                <p className="text-xl font-headline font-bold">GEMINI 2.5</p>
-             </div>
+                <p className="text-2xl font-headline font-bold truncate">Gemini 2.5</p>
+             </Card>
           </div>
         </div>
       </main>
 
-      {/* Footer / Floating Action */}
-      <footer className="py-6 px-8 border-t bg-muted/20 text-center text-xs text-muted-foreground mt-auto">
-        <p>© 2026 Dynamic Study Buddy • Powered by Google Gemini Live API & Google Cloud</p>
-        <div className="flex justify-center gap-4 mt-2">
-          <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-          <a href="#" className="hover:text-primary transition-colors">Documentation</a>
-        </div>
+      <footer className="py-8 px-8 border-t bg-white text-center text-[10px] text-muted-foreground/60 font-medium uppercase tracking-[0.2em]">
+        <p>© 2026 Interactive Agent Prototyping • Multi-Modal Intelligence</p>
       </footer>
     </div>
   );
