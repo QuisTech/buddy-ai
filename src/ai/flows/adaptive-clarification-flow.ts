@@ -40,8 +40,8 @@ const adaptiveClarificationPrompt = ai.definePrompt({
   output: {schema: AdaptiveClarificationOutputSchema},
   prompt: `You are an expert tutor dedicated to helping students understand complex concepts. Your goal is to provide clear, helpful, and concise explanations.
 
-A student is currently confused about the concept: "{{{concept}}}}".
-Their specific confusion or question is: "{{{studentConfusion}}}}".
+A student is currently confused about the concept: "{{{concept}}}".
+Their specific confusion or question is: "{{{studentConfusion}}}".
 
 Your task is to analyze the student's confusion and provide a tailored clarification. You must choose the most appropriate method among the following:
 1.  **Alternative Explanation**: Rephrase or explain the concept from a different angle.
