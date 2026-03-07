@@ -1,7 +1,7 @@
 
 # Buddy AI
 
-Buddy AI is a hands-free AI visual tutor that sees, hears, and explains your study materials in real-time.
+Buddy AI is a hands-free AI visual tutor that sees, hears, and explains your study materials in real-time. This project is submitted for the **Live Agents** category.
 
 ## Project Story
 
@@ -9,7 +9,7 @@ Buddy AI is a hands-free AI visual tutor that sees, hears, and explains your stu
 Late one night, staring at a complex diagram of the human nervous system, we realized that the hardest part of learning isn't the difficulty of the material—it's the friction of being stuck alone. Textbooks are static, and searching for answers requires you to break your "flow" to type into a search bar. We were inspired to build a companion that doesn't just "chat," but actually *sees* what you're looking at, providing the same kind of over-the-shoulder guidance a human tutor would. We wanted to transform the lonely 2 AM study session into a collaborative experience.
 
 ### What it does
-Buddy AI is a hands-free visual tutor. It uses your camera to analyze study materials—from handwritten calculus problems to intricate biology diagrams—and explains them using a natural, conversational voice. 
+Buddy AI is a true **Live Agent**. It uses your camera to analyze study materials—from handwritten calculus problems to intricate biology diagrams—and explains them using a natural, conversational voice. 
 
 Key features include:
 - **Continuous Listening**: A seamless, hands-free conversation loop that automatically restarts after every Buddy response, allowing for natural follow-up questions.
