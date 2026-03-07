@@ -71,14 +71,13 @@ export default function StudyBuddyPage() {
           });
 
           response = {
-            content: "I've analyzed the material. Here's what I see.",
+            content: result.explanationText || "I've analyzed the material. Here's what I see.",
             audioUrl: result.audioDataUri,
             imageUrl: annotationResult.annotatedImageDataUri
           };
         }
       } else {
         // Normal conversational flow
-        // Important: use current state for history
         const history = messages.map(m => ({
           role: m.role === "user" ? "user" : "model" as any,
           content: m.content

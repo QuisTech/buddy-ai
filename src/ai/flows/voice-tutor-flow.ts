@@ -23,7 +23,7 @@ const VoiceTutorInputSchema = z.object({
 export type VoiceTutorInput = z.infer<typeof VoiceTutorInputSchema>;
 
 const VoiceTutorOutputSchema = z.object({
-  responseAudio: z.string().describe("The AI's spoken response as a base64-encoded WAV audio data URI."),
+  responseAudio: z.string().optional().describe("The AI's spoken response as a base64-encoded WAV audio data URI."),
   responseText: z.string().describe("The AI's generated text response."),
 });
 export type VoiceTutorOutput = z.infer<typeof VoiceTutorOutputSchema>;
@@ -100,33 +100,37 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
 
     const responseText = textResponse.text || "I'm sorry, I couldn't generate a text response.";
 
-    // 2. Convert the generated text response to speech
-    const speechResponse = await ai.generate({
-      model: googleAI.model('gemini-2.5-flash-preview-tts'),
-      config: {
-        responseModalities: ['AUDIO'],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Algenib' },
+    // 2. Convert the generated text response to speech (with quota resiliency)
+    let responseAudio: string | undefined = undefined;
+    try {
+      const speechResponse = await ai.generate({
+        model: googleAI.model('gemini-2.5-flash-preview-tts'),
+        config: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: 'Algenib' },
+            },
           },
         },
-      },
-      prompt: responseText,
-    });
+        prompt: responseText,
+      });
 
-    if (!speechResponse.media) {
-      throw new Error('No audio media returned from TTS model.');
+      if (speechResponse.media) {
+        const audioBuffer = Buffer.from(
+          speechResponse.media.url.substring(speechResponse.media.url.indexOf(',') + 1),
+          'base64'
+        );
+        const wavAudioBase64 = await toWav(audioBuffer);
+        responseAudio = 'data:audio/wav;base64,' + wavAudioBase64;
+      }
+    } catch (error) {
+      // If TTS fails (quota exhausted, etc.), we still return the text response
+      console.warn('TTS generation failed, proceeding with text only:', error);
     }
 
-    const audioBuffer = Buffer.from(
-      speechResponse.media.url.substring(speechResponse.media.url.indexOf(',') + 1),
-      'base64'
-    );
-
-    const wavAudioBase64 = await toWav(audioBuffer);
-
     return {
-      responseAudio: 'data:audio/wav;base64,' + wavAudioBase64,
+      responseAudio,
       responseText: responseText,
     };
   }

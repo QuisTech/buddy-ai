@@ -26,7 +26,8 @@ export type VisualExplanationInput = z.infer<typeof VisualExplanationInputSchema
 
 // Output schema for the visual explanation flow
 const VisualExplanationOutputSchema = z.object({
-  audioDataUri: z.string().describe('The spoken explanation of the visual material, as a data URI with audio/wav MIME type.'),
+  audioDataUri: z.string().optional().describe('The spoken explanation of the visual material, as a data URI with audio/wav MIME type.'),
+  explanationText: z.string().describe('The text version of the visual explanation.'),
 });
 export type VisualExplanationOutput = z.infer<typeof VisualExplanationOutputSchema>;
 
@@ -96,34 +97,37 @@ const visualExplanationFlow = ai.defineFlow(
       throw new Error('Failed to generate a text explanation from the visual input.');
     }
 
-    // Then, convert the text explanation to speech
-    const { media } = await ai.generate({
-      model: googleAI.model('gemini-2.5-flash-preview-tts'),
-      prompt: explanationText,
-      config: {
-        responseModalities: ['AUDIO'],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Algenib' }, // Using 'Algenib' as an example voice
+    // Then, convert the text explanation to speech (resilient to quota)
+    let audioDataUri: string | undefined = undefined;
+    try {
+      const { media } = await ai.generate({
+        model: googleAI.model('gemini-2.5-flash-preview-tts'),
+        prompt: explanationText,
+        config: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: 'Algenib' },
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!media) {
-      throw new Error('No audio media returned from Text-to-Speech model.');
+      if (media) {
+        const audioBuffer = Buffer.from(
+          media.url.substring(media.url.indexOf(',') + 1),
+          'base64'
+        );
+        const wavBase64 = await toWav(audioBuffer);
+        audioDataUri = 'data:audio/wav;base64,' + wavBase64;
+      }
+    } catch (error) {
+      console.warn('Visual TTS generation failed, proceeding with text only:', error);
     }
 
-    const audioBuffer = Buffer.from(
-      media.url.substring(media.url.indexOf(',') + 1),
-      'base64'
-    );
-
-    // Convert the PCM audio to WAV format
-    const wavBase64 = await toWav(audioBuffer);
-
     return {
-      audioDataUri: 'data:audio/wav;base64,' + wavBase64,
+      audioDataUri,
+      explanationText,
     };
   }
 );
@@ -132,7 +136,7 @@ const visualExplanationFlow = ai.defineFlow(
  * Analyzes visual learning materials (diagrams, textbook pages, graphs) and provides
  * clear, context-aware spoken explanations for students.
  * @param input The visual input, including a photo data URI and optional context.
- * @returns An object containing the spoken explanation as an audio data URI.
+ * @returns An object containing the spoken explanation as an audio data URI and text.
  */
 export async function visualExplanation(input: VisualExplanationInput): Promise<VisualExplanationOutput> {
   return visualExplanationFlow(input);
