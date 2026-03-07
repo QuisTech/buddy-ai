@@ -66,6 +66,7 @@ This project is a deep integration of Google Cloud's Generative AI ecosystem:
 - **AI Services**: Orchestrated via **Genkit**, we consume Vertex AI-grade models (Gemini 2.5 family) for vision, text, and speech synthesis.
 - **Deployment**: Hosted on **Firebase App Hosting**, leveraging Google Cloud's serverless infrastructure (Cloud Run) for optimized performance.
 - **Automated Cloud Deployment (Bonus Points)**: We use Infrastructure-as-Code (IaC) to automatically provision and deploy our Next.js backend and frontend instances in response to cloud triggers. See the [apphosting.yaml](https://github.com/QuisTech/buddy-ai/blob/main/apphosting.yaml) file for the automated deployment configuration for Firebase App Hosting.
+- **Published Content (Bonus Points)**: Check out our [Demo Video / Blog Post]([INSERT_YOUR_URL_HERE]) covering how Buddy AI was built with Google AI models and Google Cloud. _This piece of content was created for the purposes of entering this hackathon. #GeminiLiveAgentChallenge_
 - **Proof File**: See `src/ai/flows/voice-tutor-flow.ts` for direct implementation of Google Cloud AI models.
 
 ### Challenges we ran into
