@@ -19,15 +19,21 @@ Key features include:
 
 ### How we built it
 We built Buddy AI using **Next.js 15** and **React 19** to ensure a high-performance, responsive interface. The AI orchestration is powered by **Genkit**, managing several specialized flows:
-- **Gemini 2.5 Flash** handles the core conversational reasoning and context management.
+- **Gemini 2.5 Flash** (via `@genkit-ai/google-genai`) handles the core conversational reasoning.
 - **Gemini 2.5 Flash Image** powers the visual analysis and image-to-image annotation.
 - **Gemini 2.5 Flash Preview TTS** provides the spoken voice responses, turning text into clear, helpful instruction.
 
+### Google Cloud Integration (Proof of Usage)
+This project is a deep integration of Google Cloud's Generative AI ecosystem:
+- **AI Services**: Orchestrated via **Genkit**, we consume Vertex AI-grade models (Gemini 2.5 family) for vision, text, and speech synthesis.
+- **Deployment**: Hosted on **Firebase App Hosting**, leveraging Google Cloud's serverless infrastructure for optimized Next.js 15 performance.
+- **Proof File**: See `src/ai/flows/voice-tutor-flow.ts` for direct implementation of Google Cloud AI models.
+
 ### Challenges we ran into
-The biggest hurdle was the "Hands-Free Loop." We had to solve the "Self-Hearing" problem—preventing the microphone from "listening" to the AI's own voice while ensuring it was ready the instant the student wanted to speak. We also faced tight token quotas, which forced us to implement aggressive context truncation and prompt optimization to maintain a long-running, intelligent conversation without hitting rate limits.
+The biggest hurdle was the "Hands-Free Loop." We had to solve the "Self-Hearing" problem—preventing the microphone from "listening" to the AI's own voice while ensuring it was ready the instant the student wanted to speak. We also faced tight token quotas, which forced us to implement aggressive context truncation and prompt optimization to maintain a long-running, intelligent conversation.
 
 ### Accomplishments that we're proud of
-We are particularly proud of the "Continuous Listening" feature. It transforms the app from a simple "push-to-talk" tool into a living presence that feels like it's actually studying *with* you. Seeing the AI accurately identify a handwritten formula and then draw an arrow to the specific part a student is confused about felt like a glimpse into the future of education.
+We are particularly proud of the "Continuous Listening" feature. It transforms the app from a simple "push-to-talk" tool into a living presence that feels like it's actually studying *with* you. 
 
 ### What we learned
 We learned that multimodal AI is most powerful when it disappears into the background. Building a low-latency experience where vision, text, and voice work in harmony taught us deep lessons about state management in React and the nuances of prompt engineering for visual tasks.
@@ -35,7 +41,6 @@ We learned that multimodal AI is most powerful when it disappears into the backg
 ### What's next for Buddy AI
 - **Collaborative Study Rooms**: Multiple students sharing a single Buddy session across different devices.
 - **Interactive Quizzing**: The Buddy proactively testing the student based on the materials it has seen.
-- **LMS Integration**: Syncing session summaries directly to platforms like Canvas or Google Classroom to track persistent knowledge gaps.
 
 ## Media Gallery (Submission Assets)
 
@@ -78,14 +83,10 @@ Open your browser and navigate to `http://localhost:9002`.
 4. **Hands-Free Query**: Speak naturally! Try saying: *"Buddy, can you see this? Please explain what's happening here."*
 5. **Listen & Learn**: Buddy will analyze the image, generate a spoken explanation (Audio), and may draw dynamic highlights (Image) on the material.
 6. **Follow-up**: After Buddy finishes speaking, the microphone will automatically turn back on (green indicator). You can ask follow-up questions without clicking any buttons.
-7. **Finish**: Click **"Finish"** to view your Session Summary and key takeaways.
-
-*Note: If you encounter a "taking a breather" message, it means the API quota has been reached. Please wait 30-60 seconds and try your request again.*
 
 ## Built with
 - **Frameworks**: Next.js 15, React 19
 - **AI Orchestration**: Genkit
 - **Models**: Gemini 2.5 (Flash, Image, TTS)
 - **Styling**: Tailwind CSS, ShadCN UI
-- **Icons**: Lucide React
-- **Hosting**: Firebase App Hosting
+- **Hosting**: Firebase App Hosting (Google Cloud)
