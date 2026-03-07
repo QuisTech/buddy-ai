@@ -61,24 +61,21 @@ const dynamicAnnotationFlow = ai.defineFlow(
     outputSchema: DynamicAnnotationOutputSchema,
   },
   async (input) => {
-    const { output } = await ai.generate({
+    // Call the prompt action directly.
+    const { output, response } = await dynamicAnnotationPrompt(input, {
       model: googleAI.model('gemini-2.5-flash-image'),
-      prompt: [
-        { text: dynamicAnnotationPrompt.prompt(input) },
-        { media: { url: input.photoDataUri } },
-      ],
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },
     });
+
     if (!output) {
       throw new Error('No output received from the model.');
     }
-    // In Genkit 1.x, 'text' is a property, not a function.
-    const parsedOutput = JSON.parse(output.text || '{}');
-    // The model might return the image as a separate media part or as part of the JSON. 
-    // Prioritize the JSON field if available, otherwise look for a media part.
-    const annotatedImageDataUri = parsedOutput.annotatedImageDataUri || output.media?.url;
+
+    // Try to find the image in the structured output or the model's generated media parts
+    const mediaPart = response.content?.find((p) => !!p.media);
+    const annotatedImageDataUri = output.annotatedImageDataUri || mediaPart?.media?.url;
     
     if (!annotatedImageDataUri) {
       throw new Error('No annotated image data URI found in the model output.');
@@ -86,7 +83,7 @@ const dynamicAnnotationFlow = ai.defineFlow(
 
     return {
       annotatedImageDataUri: annotatedImageDataUri,
-      explanation: parsedOutput.explanation || input.explanation, // Use refined explanation if available, else original
+      explanation: output.explanation || input.explanation,
     };
   }
 );
