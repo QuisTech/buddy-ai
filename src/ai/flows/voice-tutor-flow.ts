@@ -68,29 +68,30 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
     outputSchema: VoiceTutorOutputSchema,
   },
   async (input) => {
+    // Map history to Genkit 1.x message format with parts
     const messages = input.conversationHistory.map(msg => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      content: msg.content
+      role: msg.role === 'user' ? 'user' : 'model' as const,
+      content: [{ text: msg.content }]
     }));
 
+    // Add the current user query
     messages.push({
       role: 'user',
-      content: input.query,
+      content: [{ text: input.query }],
     });
 
     // 1. Generate text response from the conversational model
+    // In Genkit 1.x, 'system' and 'messages' are top-level properties.
     const textResponse = await ai.generate({
       model: 'googleai/gemini-2.5-flash',
-      prompt: {
-        system: `You are a helpful and patient study buddy. Your goal is to explain complex topics, answer questions, and provide clarifications in an easy-to-understand manner. Keep your responses concise and directly address the student's query. Remember to maintain context from the conversation history.`,
-        messages: messages,
-      },
+      system: `You are a helpful and patient study buddy. Your goal is to explain complex topics, answer questions, and provide clarifications in an easy-to-understand manner. Keep your responses concise and directly address the student's query. Remember to maintain context from the conversation history.`,
+      messages: messages,
       config: {
         maxOutputTokens: 200,
       },
     });
 
-    const responseText = textResponse.output?.text || "I'm sorry, I couldn't generate a text response.";
+    const responseText = textResponse.text || "I'm sorry, I couldn't generate a text response.";
 
     // 2. Convert the generated text response to speech
     const speechResponse = await ai.generate({

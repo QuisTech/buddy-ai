@@ -74,7 +74,8 @@ const dynamicAnnotationFlow = ai.defineFlow(
     if (!output) {
       throw new Error('No output received from the model.');
     }
-    const parsedOutput = JSON.parse(output.text() || '{}');
+    // In Genkit 1.x, 'text' is a property, not a function.
+    const parsedOutput = JSON.parse(output.text || '{}');
     // The model might return the image as a separate media part or as part of the JSON. 
     // Prioritize the JSON field if available, otherwise look for a media part.
     const annotatedImageDataUri = parsedOutput.annotatedImageDataUri || output.media?.url;
