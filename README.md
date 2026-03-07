@@ -50,6 +50,38 @@ For your hackathon submission, you can use the following generated placeholders 
 4. **Knowledge Recap**: [https://picsum.photos/seed/buddy-summary/1200/800](https://picsum.photos/seed/buddy-summary/1200/800)
    - *Caption*: A view of the generated "Session Summary" showing structured insights from a study session.
 
+## Reproducible Testing
+
+Follow these steps to experience Buddy AI as a Live Agent:
+
+### 1. Prerequisites
+- Node.js installed.
+- A **Google AI Studio API Key** (Gemini API).
+
+### 2. Environment Setup
+Create a `.env` file in the root directory and add your API key:
+```bash
+GEMINI_API_KEY=your_api_key_here
+```
+
+### 3. Installation & Launch
+```bash
+npm install
+npm run dev
+```
+Open your browser and navigate to `http://localhost:9002`.
+
+### 4. Testing the Live Agent Experience
+1. **Initialize**: Click the **"Start Session"** button in the top right.
+2. **Permissions**: Allow Camera and Microphone access when prompted.
+3. **Visual Interaction**: Hold up a diagram, a textbook page, or a handwritten note to your webcam.
+4. **Hands-Free Query**: Speak naturally! Try saying: *"Buddy, can you see this? Please explain what's happening here."*
+5. **Listen & Learn**: Buddy will analyze the image, generate a spoken explanation (Audio), and may draw dynamic highlights (Image) on the material.
+6. **Follow-up**: After Buddy finishes speaking, the microphone will automatically turn back on (green indicator). You can ask follow-up questions without clicking any buttons.
+7. **Finish**: Click **"Finish"** to view your Session Summary and key takeaways.
+
+*Note: If you encounter a "taking a breather" message, it means the API quota has been reached. Please wait 30-60 seconds and try your request again.*
+
 ## Built with
 - **Frameworks**: Next.js 15, React 19
 - **AI Orchestration**: Genkit
