@@ -11,104 +11,50 @@ type ScriptStep =
   | { type: 'log'; text: string; delay?: number }
   | { type: 'event'; eventType: string; message: string; delay?: number }
   | { type: 'scroll'; targetId?: string; y: number; delay?: number } // y matches scrollTop
+  | { type: 'type'; targetId: string; text: string; delay?: number }
   | { type: 'wait'; delay: number };
 
 const SCRIPT: ScriptStep[] = [
-    // --- 0:00 - 0:20: INTRODUCTION ---
+    // --- INTRODUCTION ---
     { type: 'cursor', x: '50%', y: '50%', delay: 1000 },
-    { type: 'subtitle', text: 'Scenario: Verifiable High-Value Agreement', delay: 3000 },
-    { type: 'log', text: '[System] Foxit Sentinel Pro v24.05 initialized' },
+    { type: 'subtitle', text: 'Scenario: Hands-Free Visual Tutor', delay: 3000 },
+    { type: 'log', text: '[System] Buddy AI Vision Engine initialized' },
    
-    // --- TEMPLATE SELECTION ---
-    { type: 'subtitle', text: 'Step 1: Selecting the Legal Framework', delay: 1000 },
-    { type: 'cursor', targetId: 'template-TPL-NDA-V2', delay: 1500 }, // Move to NDA
-    { type: 'wait', delay: 800 }, // Hover
-    { type: 'click', targetId: 'template-TPL-NDA-V2', delay: 500 }, // Click NDA
-    { type: 'log', text: '[Template] Switching context to NON-DISCLOSURE AGREEMENT' },
+    // --- START SESSION ---
+    { type: 'subtitle', text: 'Step 1: Establishing Context', delay: 1000 },
+    { type: 'cursor', targetId: 'btn-initialize-agent', delay: 1500 },
+    { type: 'wait', delay: 800 },
+    { type: 'click', targetId: 'btn-initialize-agent', delay: 500 },
+    { type: 'log', text: '[Audio] Microphone active. Awaiting voice input.' },
    
-    { type: 'cursor', targetId: 'template-TPL-SVC-V1', delay: 1000 }, // Move to MSA
-    { type: 'wait', delay: 500 },
-    { type: 'click', targetId: 'template-TPL-SVC-V1', delay: 500 }, // Click MSA
-    { type: 'log', text: '[Template] Loading Master Service Agreement schema...' },
-   
-    { type: 'cursor', targetId: 'template-TPL-NDA-V2', delay: 1000 }, // Back to NDA
-    { type: 'click', targetId: 'template-TPL-NDA-V2', delay: 500 },
-    { type: 'log', text: '[Template] Validated: TPL-NDA-V2' },
+    // --- SIMULATING VISION QUERY ---
+    { type: 'subtitle', text: 'Step 2: Multimodal Analysis', delay: 2000 },
+    { type: 'cursor', targetId: 'input-chat', delay: 1000 },
+    { type: 'click', targetId: 'input-chat', delay: 500 },
+    { type: 'subtitle', text: 'Buddy uses your camera to analyze study materials.', delay: 2000 },
+    { type: 'type', targetId: 'input-chat', text: 'Can you explain this biological diagram?', delay: 2000 },
+    { type: 'cursor', targetId: 'btn-send-chat', delay: 500 },
+    { type: 'click', targetId: 'btn-send-chat', delay: 500 },
+    { type: 'log', text: '[Vision] Capturing frame from webcam...' },
+    { type: 'log', text: '[Genkit] Routing request to Gemini 2.5 Flash / Vision.' },
+    
+    // --- GENERATING RESPONSE ---
+    { type: 'subtitle', text: 'Step 3: Real-Time Explanation', delay: 2000 },
+    { type: 'cursor', x: '50%', y: '40%', delay: 1500 },
+    { type: 'log', text: '[Audio] Generating TTS response...' },
+    { type: 'wait', delay: 4000 },
+    { type: 'subtitle', text: 'Buddy explains the material contextually and highlights key areas.', delay: 3000 },
 
-    // --- AUTOFILL ---
-    { type: 'subtitle', text: 'Step 2: Intelligent Data Injection', delay: 1000 },
-    { type: 'cursor', targetId: 'input-partyA', delay: 1500 }, // Point at fields area
-    { type: 'subtitle', text: 'We use AI to extract "Wayne Enterprises" from the deal context.', delay: 3000 },
-   
-    { type: 'cursor', targetId: 'btn-autofill', delay: 1500 }, // Move to Autofill Button
-    { type: 'wait', delay: 800 }, // Hover to show tooltip
-    { type: 'click', targetId: 'btn-autofill', delay: 500 }, // Click
-    { type: 'log', text: '[AI] Extracting entities from deal context...' },
-    { type: 'log', text: '[AI] Injecting: "Wayne Enterprises", "Gotham City"' },
-    { type: 'event', eventType: 'DataInjection', message: 'Fields Populated (Confidence: 99%)' },
-    { type: 'subtitle', text: 'Notice the immediate form population.', delay: 3000 },
-   
-    // --- GENERATION ---
-    { type: 'subtitle', text: 'Step 3: The Orchestration Pipeline', delay: 1000 },
-    { type: 'cursor', targetId: 'service-linearize', delay: 1500 }, // Move to Linearize
-    { type: 'wait', delay: 500 },
-    { type: 'click', targetId: 'service-linearize', delay: 500 }, // Toggle Linearize
-    { type: 'log', text: '[Config] Web Optimization: ENABLED' },
-
-    { type: 'cursor', targetId: 'btn-generate', delay: 1500 }, // Move to Generate
-    { type: 'wait', delay: 1000 }, // Dramatic pause
-    { type: 'click', targetId: 'btn-generate', delay: 500 }, // Click
-    { type: 'subtitle', text: 'Sending payload to Foxit PDF Services API...', delay: 2000 },
-    { type: 'log', text: '[API] POST /api/generate' },
-   
-    // SCROLL UP TO SEE PIPELINE
-    { type: 'scroll', targetId: 'window', y: 0, delay: 1000 },
-
-    // Watch status
-    { type: 'cursor', x: '50%', y: '32%', delay: 1500 }, // Point at Pipeline Visualizer
-    { type: 'subtitle', text: 'Foxit API processes watermarking and linearization in real-time.', delay: 4000 },
-    { type: 'log', text: '[Foxit] Status: CONVERTING...' },
-    { type: 'wait', delay: 3000 }, // Wait for doc gen
-    { type: 'log', text: '[Foxit] Status: WATERMARKING...' },
-    { type: 'wait', delay: 1500 },
-    { type: 'log', text: '[Foxit] Status: LINEARIZING...' },
-    { type: 'log', text: '[Foxit] SUCCESS. Downloading artifact.' },
-
-    // --- VERIFYING THE DOC ---
-    { type: 'subtitle', text: 'Step 4: Artifact Verification', delay: 1000 },
-    { type: 'cursor', x: '65%', y: '45%', delay: 1500 }, // Doc Header
-    { type: 'subtitle', text: 'Confirming: Wayne Enterprises vs Queen Industries', delay: 3000 },
-    { type: 'scroll', y: 150, delay: 2000 },
-   
-    // Watermark
-    { type: 'cursor', x: '50%', y: '50%', delay: 1000 },
-    { type: 'subtitle', text: 'Security Overlay: CONFIDENTIAL', delay: 2000 },
-    { type: 'scroll', y: 400, delay: 2000 },
-   
-    // Signature
-    { type: 'subtitle', text: 'Validating Digital Signature Block...', delay: 2000 },
-    { type: 'scroll', y: 800, delay: 3000 },
-    { type: 'cursor', x: '75%', y: '85%', delay: 1000 },
-    { type: 'log', text: '[Audit] Signature Verified: Jane Foxit' },
-    { type: 'scroll', y: 0, delay: 2000 },
-
-    // --- LEDGER VERIFICATION ---
-    { type: 'subtitle', text: 'Step 5: The Immutable Audit Ledger', delay: 1000 },
-    { type: 'cursor', targetId: 'tab-ledger', delay: 1500 }, // Move to Tabs
-    { type: 'subtitle', text: 'Every action is cryptographically recorded.', delay: 2000 },
-    { type: 'wait', delay: 500 }, // Hover Ledger Tab
-   
-    { type: 'click', targetId: 'tab-ledger', delay: 1000 }, // Click Tab
-   
-    // Wait for tab switch visually
-    { type: 'subtitle', text: 'Here is the complete history of this document.', delay: 3000 },
-    { type: 'cursor', x: '50%', y: '30%', delay: 1500 }, // Move to first card
-    { type: 'log', text: '[Ledger] Block #99201 Verified' },
-    { type: 'subtitle', text: 'Trace ID, Timestamp, and Hash match our generated PDF.', delay: 4000 },
+    // --- FINISHING LOG ---
+    { type: 'subtitle', text: 'Step 4: Intelligent Recap', delay: 2000 },
+    { type: 'cursor', targetId: 'btn-header-session', delay: 1500 },
+    { type: 'log', text: '[System] Session summarized and stored offline.' },
+    { type: 'click', targetId: 'btn-header-session', delay: 500 },
+    { type: 'wait', delay: 2000 },
 
     // --- OUTRO ---
-    { type: 'subtitle', text: 'Foxit Sentinel Pro: Absolute Integrity.', delay: 3000 },
-    { type: 'event', eventType: 'Blockchain', message: 'Transaction Finalized' },
+    { type: 'subtitle', text: 'Buddy AI: Your Personal Live Tutor.', delay: 3000 },
+    { type: 'event', eventType: 'System', message: 'Demo Completed' },
     { type: 'cursor', x: '95%', y: '95%', delay: 1000 },
 ];
 
@@ -255,6 +201,21 @@ export function DirectorMode({ onClose }: { onClose: () => void }) {
                     if (container) {
                         container.scrollTo({ top: step.y, behavior: 'smooth' });
                     }
+                }
+            }
+            else if (step.type === 'type' && step.targetId) {
+                const el = document.getElementById(step.targetId) as HTMLInputElement;
+                if (el) {
+                    setIsClicking(true);
+                    for(let i=0; i<step.text.length; i++) {
+                        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+                        if (nativeInputValueSetter) {
+                            nativeInputValueSetter.call(el, el.value + step.text[i]);
+                            el.dispatchEvent(new Event('input', { bubbles: true}));
+                        }
+                        await new Promise(r => setTimeout(r, 60)); // typing speed
+                    }
+                    setIsClicking(false);
                 }
             }
             else if (step.type === 'event') {

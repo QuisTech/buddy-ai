@@ -218,6 +218,7 @@ export default function StudyBuddyPage() {
             </div>
           )}
           <Button 
+            id="btn-header-session"
             variant={sessionActive ? "destructive" : "default"} 
             onClick={toggleSession}
             className="rounded-full shadow-lg h-12 px-8 font-headline text-md transition-all active:scale-95"
@@ -268,7 +269,7 @@ export default function StudyBuddyPage() {
                 <p className="text-muted-foreground mb-10 leading-relaxed text-lg">
                   Start a session to enable hands-free voice interaction and real-time visual assistance.
                 </p>
-                <Button onClick={toggleSession} size="lg" className="rounded-full w-full h-14 text-lg font-headline shadow-xl hover:shadow-primary/20 transition-all">
+                <Button id="btn-initialize-agent" onClick={toggleSession} size="lg" className="rounded-full w-full h-14 text-lg font-headline shadow-xl hover:shadow-primary/20 transition-all">
                   Initialize Agent
                 </Button>
               </div>
@@ -303,7 +304,8 @@ export default function StudyBuddyPage() {
               {sessionActive && (
                 <div className="p-6 bg-white border-t space-y-4">
                   <form onSubmit={handleChatSubmit} className="flex gap-3">
-                    <Input 
+                      <Input 
+                      id="input-chat"
                       placeholder="Type a follow-up..." 
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
@@ -311,6 +313,7 @@ export default function StudyBuddyPage() {
                       disabled={isThinking}
                     />
                     <Button 
+                      id="btn-send-chat"
                       type="submit" 
                       size="icon" 
                       className="rounded-full shrink-0 w-12 h-12 shadow-lg hover:rotate-12 transition-transform"
