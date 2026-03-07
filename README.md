@@ -46,7 +46,7 @@ graph TD
     Browser --> User
 ```
 
-- **Architecture Image**: [https://picsum.photos/seed/buddy-arch/1200/800](https://picsum.photos/seed/buddy-arch/1200/800)
+- **Architecture Diagram**: [UPLOAD YOUR ARCHITECTURE IMAGE HERE]
 
 ### How we built it
 We built Buddy AI using **Next.js 15** and **React 19** to ensure a high-performance, responsive interface. The AI orchestration is powered by **Genkit**, managing several specialized flows:
@@ -75,13 +75,13 @@ We learned that multimodal AI is most powerful when it disappears into the backg
 
 ## Media Gallery (Submission Assets)
 
-1. **The Visual Tutor in Action**: [https://picsum.photos/seed/buddy-hero/1200/800](https://picsum.photos/seed/buddy-hero/1200/800)
+1. **The Visual Tutor in Action**: [UPLOAD HERO IMAGE HERE]
    - *Caption*: Buddy AI identifying a complex handwritten equation with a real-time conversational explanation.
-2. **Dynamic Highlights**: [https://picsum.photos/seed/buddy-diagram/1200/800](https://picsum.photos/seed/buddy-diagram/1200/800)
+2. **Dynamic Highlights**: [UPLOAD DIAGRAM ANALYSIS IMAGE HERE]
    - *Caption*: A visual showcasing Buddy "drawing" on a plant cell diagram to explain mitochondrial function.
-3. **The Hands-Free Loop**: [https://picsum.photos/seed/buddy-ui/1200/800](https://picsum.photos/seed/buddy-ui/1200/800)
+3. **The Hands-Free Loop**: [UPLOAD UI SCREENSHOT HERE]
    - *Caption*: Capturing the active microphone state and the clean, intuitive conversation flow.
-4. **Knowledge Recap**: [https://picsum.photos/seed/buddy-summary/1200/800](https://picsum.photos/seed/buddy-summary/1200/800)
+4. **Knowledge Recap**: [UPLOAD SUMMARY SCREENSHOT HERE]
    - *Caption*: A view of the generated "Session Summary" showing structured insights from a study session.
 
 ## Reproducible Testing
