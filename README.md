@@ -17,34 +17,63 @@ Key features include:
 - **Dynamic Annotations**: Buddy doesn't just talk; it can "draw" on your material, overlaying highlights and pointers to guide your eyes to the most important parts of a diagram.
 - **Intelligent Summaries**: At the end of every session, Buddy generates a structured study guide based on the specific topics you covered.
 
+### Technical Architecture
+Buddy AI uses a modern, serverless architecture optimized for high-performance AI interactions.
+
+```mermaid
+graph TD
+    User((User))
+    Webcam[User Camera/Mic]
+    Browser[Next.js Frontend / React 19]
+    Server[Next.js Server Actions]
+    Genkit[Genkit AI Orchestration]
+    GeminiVision[Gemini 2.5 Flash - Vision]
+    GeminiTTS[Gemini 2.5 Flash Preview - TTS]
+    GeminiImage[Gemini 2.5 Flash Image - Annotations]
+
+    User --> Browser
+    Webcam -.-> Browser
+    Browser --> Server
+    Server --> Genkit
+    Genkit --> GeminiVision
+    Genkit --> GeminiTTS
+    Genkit --> GeminiImage
+    GeminiVision --> Genkit
+    GeminiTTS --> Genkit
+    GeminiImage --> Genkit
+    Genkit --> Server
+    Server --> Browser
+    Browser --> User
+```
+
+- **Architecture Image**: [https://picsum.photos/seed/buddy-arch/1200/800](https://picsum.photos/seed/buddy-arch/1200/800)
+
 ### How we built it
 We built Buddy AI using **Next.js 15** and **React 19** to ensure a high-performance, responsive interface. The AI orchestration is powered by **Genkit**, managing several specialized flows:
-- **Gemini 2.5 Flash** (via `@genkit-ai/google-genai`) handles the core conversational reasoning.
+- **Gemini 2.5 Flash** handles the core conversational reasoning and vision.
 - **Gemini 2.5 Flash Image** powers the visual analysis and image-to-image annotation.
-- **Gemini 2.5 Flash Preview TTS** provides the spoken voice responses, turning text into clear, helpful instruction.
+- **Gemini 2.5 Flash Preview TTS** provides the spoken voice responses.
 
 ### Google Cloud Integration (Proof of Usage)
 This project is a deep integration of Google Cloud's Generative AI ecosystem:
 - **AI Services**: Orchestrated via **Genkit**, we consume Vertex AI-grade models (Gemini 2.5 family) for vision, text, and speech synthesis.
-- **Deployment**: Hosted on **Firebase App Hosting**, leveraging Google Cloud's serverless infrastructure for optimized Next.js 15 performance.
+- **Deployment**: Hosted on **Firebase App Hosting**, leveraging Google Cloud's serverless infrastructure (Cloud Run) for optimized performance.
 - **Proof File**: See `src/ai/flows/voice-tutor-flow.ts` for direct implementation of Google Cloud AI models.
 
 ### Challenges we ran into
-The biggest hurdle was the "Hands-Free Loop." We had to solve the "Self-Hearing" problem—preventing the microphone from "listening" to the AI's own voice while ensuring it was ready the instant the student wanted to speak. We also faced tight token quotas, which forced us to implement aggressive context truncation and prompt optimization to maintain a long-running, intelligent conversation.
+The biggest hurdle was the "Hands-Free Loop." We had to solve the "Self-Hearing" problem—preventing the microphone from listening to the AI's own voice while ensuring it was ready the instant the student wanted to speak. We also faced tight token quotas, which forced us to implement aggressive context truncation.
 
 ### Accomplishments that we're proud of
 We are particularly proud of the "Continuous Listening" feature. It transforms the app from a simple "push-to-talk" tool into a living presence that feels like it's actually studying *with* you. 
 
 ### What we learned
-We learned that multimodal AI is most powerful when it disappears into the background. Building a low-latency experience where vision, text, and voice work in harmony taught us deep lessons about state management in React and the nuances of prompt engineering for visual tasks.
+We learned that multimodal AI is most powerful when it disappears into the background. Building a low-latency experience where vision, text, and voice work in harmony taught us deep lessons about state management in React 19.
 
 ### What's next for Buddy AI
-- **Collaborative Study Rooms**: Multiple students sharing a single Buddy session across different devices.
-- **Interactive Quizzing**: The Buddy proactively testing the student based on the materials it has seen.
+- **Collaborative Study Rooms**: Multiple students sharing a single Buddy session.
+- **Interactive Quizzing**: The Buddy proactively testing the student based on visual materials.
 
 ## Media Gallery (Submission Assets)
-
-For your hackathon submission, you can use the following generated placeholders which are optimized for a 3:2 ratio:
 
 1. **The Visual Tutor in Action**: [https://picsum.photos/seed/buddy-hero/1200/800](https://picsum.photos/seed/buddy-hero/1200/800)
    - *Caption*: Buddy AI identifying a complex handwritten equation with a real-time conversational explanation.
@@ -57,32 +86,15 @@ For your hackathon submission, you can use the following generated placeholders 
 
 ## Reproducible Testing
 
-Follow these steps to experience Buddy AI as a Live Agent:
-
-### 1. Prerequisites
-- Node.js installed.
-- A **Google AI Studio API Key** (Gemini API).
-
-### 2. Environment Setup
-Create a `.env` file in the root directory and add your API key:
-```bash
-GEMINI_API_KEY=your_api_key_here
-```
-
-### 3. Installation & Launch
-```bash
-npm install
-npm run dev
-```
-Open your browser and navigate to `http://localhost:9002`.
-
-### 4. Testing the Live Agent Experience
-1. **Initialize**: Click the **"Start Session"** button in the top right.
-2. **Permissions**: Allow Camera and Microphone access when prompted.
-3. **Visual Interaction**: Hold up a diagram, a textbook page, or a handwritten note to your webcam.
-4. **Hands-Free Query**: Speak naturally! Try saying: *"Buddy, can you see this? Please explain what's happening here."*
-5. **Listen & Learn**: Buddy will analyze the image, generate a spoken explanation (Audio), and may draw dynamic highlights (Image) on the material.
-6. **Follow-up**: After Buddy finishes speaking, the microphone will automatically turn back on (green indicator). You can ask follow-up questions without clicking any buttons.
+1. **Prerequisites**: Node.js installed and a Google AI Studio API Key.
+2. **Environment Setup**: Add `GEMINI_API_KEY=your_key` to `.env`.
+3. **Installation & Launch**: Run `npm install && npm run dev`.
+4. **Testing the Live Agent**:
+    - Click **"Start Session"**.
+    - Allow Camera/Mic permissions.
+    - Hold up a diagram or handwritten note.
+    - Ask naturally: *"Buddy, can you see this? What's going on here?"*
+    - The mic will automatically restart once Buddy finishes speaking.
 
 ## Built with
 - **Frameworks**: Next.js 15, React 19
