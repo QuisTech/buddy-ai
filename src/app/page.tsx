@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -135,12 +134,16 @@ export default function StudyBuddyPage() {
         });
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      const isQuotaError = error.message?.includes("429") || error.message?.includes("quota");
+      
       toast({
         variant: "destructive",
-        title: "Buddy hit a snag",
-        description: "I'm having trouble processing that right now."
+        title: isQuotaError ? "Buddy is taking a breather" : "Buddy hit a snag",
+        description: isQuotaError 
+          ? "I've hit my question limit for the minute. Please wait 30-60 seconds and try again!" 
+          : "I'm having trouble processing that right now."
       });
     } finally {
       setIsThinking(false);

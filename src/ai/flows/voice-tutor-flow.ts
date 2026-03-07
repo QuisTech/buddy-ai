@@ -68,8 +68,13 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
     outputSchema: VoiceTutorOutputSchema,
   },
   async (input) => {
+    // Optimization: Truncate history to save tokens and stay within quota
+    // Keeping the last 6 messages is usually enough for conversational context
+    const maxHistory = 6;
+    const truncatedHistory = input.conversationHistory.slice(-maxHistory);
+
     // Map history to Genkit 1.x message format with parts
-    const messages = input.conversationHistory.map(msg => ({
+    const messages = truncatedHistory.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'model' as const,
       content: [{ text: msg.content }]
     }));
