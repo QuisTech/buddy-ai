@@ -1,3 +1,4 @@
+
 # Buddy AI
 
 Buddy AI is a hands-free AI visual tutor that sees, hears, and explains your study materials in real-time.
@@ -35,6 +36,13 @@ We learned that multimodal AI is most powerful when it disappears into the backg
 - **Collaborative Study Rooms**: Multiple students sharing a single Buddy session across different devices.
 - **Interactive Quizzing**: The Buddy proactively testing the student based on the materials it has seen.
 - **LMS Integration**: Syncing session summaries directly to platforms like Canvas or Google Classroom to track persistent knowledge gaps.
+
+## Media Gallery (Suggested for Submission)
+
+1. **The Visual Tutor in Action**: A screenshot of Buddy identifying a complex handwritten equation with a real-time conversational explanation.
+2. **Dynamic Highlights**: A visual showcasing Buddy "drawing" on a plant cell diagram to explain mitochondrial function.
+3. **The Hands-Free Loop**: A shot capturing the active microphone state and the clean, intuitive conversation flow.
+4. **Knowledge Recap**: A view of the generated "Session Summary" showing structured insights from a study session.
 
 ## Built with
 - **Frameworks**: Next.js 15, React 19
