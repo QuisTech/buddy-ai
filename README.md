@@ -49,7 +49,7 @@ graph TD
     Browser --> User
 ```
 
-- **Architecture Diagram**: ![Architecture Diagram](/images/architecture_diagram_1772885272599.png)
+- **Architecture Diagram**: ![Architecture Diagram](public/images/architecture_diagram_1772885272599.png)
 
 ### How we built it
 
@@ -86,13 +86,13 @@ We learned that multimodal AI is most powerful when it disappears into the backg
 
 ## Media Gallery (Submission Assets)
 
-1. **The Visual Tutor in Action**: ![The Visual Tutor in Action](/images/hero_equation_tutor_1772885288412.png)
+1. **The Visual Tutor in Action**: ![The Visual Tutor in Action](public/images/hero_equation_tutor_1772885288412.png)
    - _Caption_: Buddy AI identifying a complex handwritten equation with a real-time conversational explanation.
-2. **Dynamic Highlights**: ![Dynamic Highlights](/images/diagram_analysis_1772885303737.png)
+2. **Dynamic Highlights**: ![Dynamic Highlights](public/images/diagram_analysis_1772885303737.png)
    - _Caption_: A visual showcasing Buddy "drawing" on a plant cell diagram to explain mitochondrial function.
-3. **The Hands-Free Loop**: ![The Hands-Free Loop](/images/ui_active_mic_1772885319432.png)
+3. **The Hands-Free Loop**: ![The Hands-Free Loop](public/images/ui_active_mic_1772885319432.png)
    - _Caption_: Capturing the active microphone state and the clean, intuitive conversation flow.
-4. **Knowledge Recap**: ![Knowledge Recap](/images/session_summary_1772885334431.png)
+4. **Knowledge Recap**: ![Knowledge Recap](public/images/session_summary_1772885334431.png)
    - _Caption_: A view of the generated "Session Summary" showing structured insights from a study session.
 
 ## Reproducible Testing
