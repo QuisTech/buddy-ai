@@ -37,12 +37,18 @@ We learned that multimodal AI is most powerful when it disappears into the backg
 - **Interactive Quizzing**: The Buddy proactively testing the student based on the materials it has seen.
 - **LMS Integration**: Syncing session summaries directly to platforms like Canvas or Google Classroom to track persistent knowledge gaps.
 
-## Media Gallery (Suggested for Submission)
+## Media Gallery (Submission Assets)
 
-1. **The Visual Tutor in Action**: A screenshot of Buddy identifying a complex handwritten equation with a real-time conversational explanation.
-2. **Dynamic Highlights**: A visual showcasing Buddy "drawing" on a plant cell diagram to explain mitochondrial function.
-3. **The Hands-Free Loop**: A shot capturing the active microphone state and the clean, intuitive conversation flow.
-4. **Knowledge Recap**: A view of the generated "Session Summary" showing structured insights from a study session.
+For your hackathon submission, you can use the following generated placeholders which are optimized for a 3:2 ratio:
+
+1. **The Visual Tutor in Action**: [https://picsum.photos/seed/buddy-hero/1200/800](https://picsum.photos/seed/buddy-hero/1200/800)
+   - *Caption*: Buddy AI identifying a complex handwritten equation with a real-time conversational explanation.
+2. **Dynamic Highlights**: [https://picsum.photos/seed/buddy-diagram/1200/800](https://picsum.photos/seed/buddy-diagram/1200/800)
+   - *Caption*: A visual showcasing Buddy "drawing" on a plant cell diagram to explain mitochondrial function.
+3. **The Hands-Free Loop**: [https://picsum.photos/seed/buddy-ui/1200/800](https://picsum.photos/seed/buddy-ui/1200/800)
+   - *Caption*: Capturing the active microphone state and the clean, intuitive conversation flow.
+4. **Knowledge Recap**: [https://picsum.photos/seed/buddy-summary/1200/800](https://picsum.photos/seed/buddy-summary/1200/800)
+   - *Caption*: A view of the generated "Session Summary" showing structured insights from a study session.
 
 ## Built with
 - **Frameworks**: Next.js 15, React 19
