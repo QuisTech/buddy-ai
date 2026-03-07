@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import CameraView, { CameraViewHandle } from "@/components/CameraView";
 import VoiceInterface from "@/components/VoiceInterface";
 import ConversationList, { Message } from "@/components/ConversationList";
@@ -32,8 +32,9 @@ import { dynamicAnnotation } from "@/ai/flows/dynamic-annotation-flow";
 
 export default function StudyBuddyPage() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isListening, setIsListening] = useState(false);
+  const [isListening, setIsListening] = useState(false); // Controls hands-free mode toggle
   const [isThinking, setIsThinking] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false); // Tracks when Buddy's voice is playing
   const [sessionActive, setSessionActive] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [summary, setSummary] = useState<{
@@ -55,7 +56,7 @@ export default function StudyBuddyPage() {
     setChatInput(""); 
 
     try {
-      // Vision triggers refined
+      // Vision triggers
       const visualTriggers = ["look at", "see this", "this diagram", "this page", "explain this image", "what is in this", "scan this"];
       const needsVision = visualTriggers.some(t => text.toLowerCase().includes(t));
 
@@ -109,7 +110,7 @@ export default function StudyBuddyPage() {
                response.content += `\n\n💡 Hint: ${clarification.clarificationText}`;
             }
           } catch (e) {
-            // Silently fail clarification to keep main response
+            // Silently fail clarification
           }
         }
       }
@@ -121,6 +122,18 @@ export default function StudyBuddyPage() {
         imageUrl: response.imageUrl
       };
       setMessages(prev => [...prev, buddyMsg]);
+
+      // If there is audio, play it and manage isSpeaking state for hands-free loop
+      if (response.audioUrl) {
+        const audio = new Audio(response.audioUrl);
+        setIsSpeaking(true);
+        audio.onended = () => setIsSpeaking(false);
+        audio.onerror = () => setIsSpeaking(false);
+        audio.play().catch(e => {
+          console.warn("Audio playback failed", e);
+          setIsSpeaking(false);
+        });
+      }
 
     } catch (error) {
       console.error(error);
@@ -222,6 +235,7 @@ export default function StudyBuddyPage() {
                 onSpeak={handleUserQuery}
                 isListening={isListening}
                 isThinking={isThinking}
+                isSpeaking={isSpeaking}
                 onToggleMic={() => setIsListening(!isListening)}
               />
             ) : (
