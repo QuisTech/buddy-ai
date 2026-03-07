@@ -1,11 +1,10 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Dynamic Study Buddy | AI Visual Tutor',
-  description: 'Your next-generation AI agent that sees, hears, and explains study materials in real-time.',
+  title: 'Buddy AI | Your Hands-Free Visual Tutor',
+  description: 'A next-generation AI study partner that sees, hears, and explains study materials in real-time.',
 };
 
 export default function RootLayout({

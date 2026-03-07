@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -201,7 +200,7 @@ export default function StudyBuddyPage() {
             <BrainCircuit size={28} />
           </div>
           <div>
-            <h1 className="font-headline font-bold text-2xl tracking-tight leading-none">Buddy</h1>
+            <h1 className="font-headline font-bold text-2xl tracking-tight leading-none">Buddy AI</h1>
             <div className="flex items-center gap-1.5 mt-1">
               <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
               <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Always Active</span>
@@ -355,7 +354,7 @@ export default function StudyBuddyPage() {
       </main>
 
       <footer className="py-8 px-8 border-t bg-white text-center text-[10px] text-muted-foreground/60 font-medium uppercase tracking-[0.2em]">
-        <p>© 2026 Dynamic Study Buddy • Multi-Modal Learning AI</p>
+        <p>© 2026 Buddy AI • Hands-Free Visual Tutor</p>
       </footer>
     </div>
   );
