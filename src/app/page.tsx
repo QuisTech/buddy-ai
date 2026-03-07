@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -68,20 +69,29 @@ export default function StudyBuddyPage() {
       if (needsVision && cameraRef.current) {
         const photo = cameraRef.current.capture();
         if (photo) {
+          // Primary vision call: Explanation
           const result = await visualExplanation({ 
             photoDataUri: photo, 
             context: text 
           });
           
-          const annotationResult = await dynamicAnnotation({
-            photoDataUri: photo,
-            explanation: result.explanationText
-          });
+          let annotatedImageUrl: string | undefined = undefined;
+          
+          // Optional enhancement: Annotation (heavy on quota)
+          try {
+            const annotationResult = await dynamicAnnotation({
+              photoDataUri: photo,
+              explanation: result.explanationText
+            });
+            annotatedImageUrl = annotationResult.annotatedImageDataUri;
+          } catch (e) {
+            console.warn("Annotation enhancement skipped due to quota or error", e);
+          }
 
           response = {
             content: result.explanationText || "I've analyzed the material. Here's what I see.",
             audioUrl: result.audioDataUri,
-            imageUrl: annotationResult.annotatedImageDataUri
+            imageUrl: annotatedImageUrl
           };
         }
       } else {
@@ -100,11 +110,8 @@ export default function StudyBuddyPage() {
           audioUrl: result.responseAudio
         };
 
-        // Proactive adaptive clarification (throttled to save quota)
-        const academicTriggers = ["how", "why", "process", "difference"];
-        const isComplexQuery = academicTriggers.some(c => text.toLowerCase().includes(c));
-
-        if (text.length > 40 && isComplexQuery && !needsVision) {
+        // Proactive adaptive clarification (strictly limited to save quota)
+        if (text.length > 50 && text.toLowerCase().includes("how") && !needsVision) {
           try {
             const clarification = await adaptiveClarification({
               concept: text,
@@ -147,7 +154,7 @@ export default function StudyBuddyPage() {
         variant: "destructive",
         title: isQuotaError ? "Buddy is taking a breather" : "Buddy hit a snag",
         description: isQuotaError 
-          ? "I've hit my limit for this minute. Please wait 30 seconds and ask again!" 
+          ? "I've hit my limit for this minute. Please wait about 30 seconds and ask me again!" 
           : "I'm having trouble processing that right now."
       });
     } finally {

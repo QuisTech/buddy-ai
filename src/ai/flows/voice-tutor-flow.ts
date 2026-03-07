@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file implements a Genkit flow for an interactive voice tutor.
@@ -81,13 +82,10 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
     // 1. Generate text response
     const textResponse = await ai.generate({
       model: 'googleai/gemini-2.5-flash',
-      system: `You are a concise study buddy with multi-modal capabilities. 
-      - You HAVE EYES! You can see study materials if the user shows them to the camera.
-      - If the user asks "can you see what I'm showing", explain that you CAN see if they ask you to "look at it" or "scan it".
-      - NEVER say you are a text-based AI only. You are a visual tutor.
+      system: `You are a concise study buddy. 
       - Pivot immediately if the user switches topics.
-      - Keep answers under 3 sentences for better flow.
-      - Use history only for direct references like "it" or "why?".`,
+      - NEVER say you are text-only. You CAN see materials if the user asks you to look or scan.
+      - Keep answers under 3 sentences for better conversation flow.`,
       messages: messages,
       config: {
         maxOutputTokens: 250,

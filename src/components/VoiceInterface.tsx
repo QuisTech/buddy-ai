@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -7,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 interface VoiceInterfaceProps {
   onSpeak: (text: string) => void;
-  isListening: boolean; // Master "Hands-free Mode" toggle
+  isListening: boolean; 
   isThinking: boolean;
   isSpeaking: boolean;
   onToggleMic: () => void;
@@ -44,20 +45,17 @@ export default function VoiceInterface({
     recognition.onstart = () => setIsEngineActive(true);
     recognition.onend = () => {
       setIsEngineActive(false);
-      // Robust restart: if master toggle is ON and we're NOT busy, try to restart
+      // Robust restart: if master toggle is ON and we're NOT busy, try to restart immediately
       if (recognitionRef.current?.shouldBeActive && !isBusyRef.current) {
         setTimeout(() => {
           try {
             recognition.start();
-          } catch (e) {
-            // BENIGN: Ignore rapid start failures
-          }
-        }, 300);
+          } catch (e) {}
+        }, 100);
       }
     };
 
     recognition.onresult = (event: any) => {
-      // Don't capture while Buddy is explaining or processing
       if (isBusyRef.current) return;
 
       let interimTranscript = "";
@@ -81,7 +79,7 @@ export default function VoiceInterface({
     };
 
     recognition.onerror = (event: any) => {
-      // Ignore standard browser engine events that aren't real failures
+      // Ignore benign browser speech recognition states
       if (['aborted', 'no-speech', 'audio-capture'].includes(event.error)) return;
       console.warn("Speech engine warning:", event.error);
     };
@@ -115,7 +113,7 @@ export default function VoiceInterface({
         recognitionRef.current.instance.stop();
       } catch (e) {}
     }
-  }, [isListening, isThinking, isSpeaking, isEngineActive]);
+  }, [isListening, isThinking, isSpeaking]); // Removed isEngineActive from deps to prevent toggling loops
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-md">
