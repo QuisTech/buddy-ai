@@ -56,13 +56,15 @@ export default function StudyBuddyPage() {
     setChatInput(""); 
 
     try {
-      // Vision triggers: pivot based on specific language or direct requests to "see"
+      // Significantly expanded vision triggers for more natural conversation
       const visualTriggers = [
-        "look at", "see this", "this diagram", "this page", "explain this image", 
-        "what is in this", "scan this", "can you see", "what is this", 
-        "what am I showing", "is this correct", "capture this"
+        "look", "see", "show", "read", "scan", "diagram", "page", "image", 
+        "picture", "camera", "screen", "what is this", "correct", "this",
+        "reading", "visible", "showing"
       ];
-      const needsVision = visualTriggers.some(t => text.toLowerCase().includes(t));
+      
+      const queryLower = text.toLowerCase();
+      const needsVision = visualTriggers.some(t => queryLower.includes(t));
 
       let response: any;
 
@@ -94,7 +96,10 @@ export default function StudyBuddyPage() {
             imageUrl: annotatedImageUrl
           };
         }
-      } else {
+      } 
+      
+      // If we didn't trigger vision or vision failed to capture a photo
+      if (!response) {
         const history = messages.map(m => ({
           role: m.role === "user" ? "user" : "model" as any,
           content: m.content
