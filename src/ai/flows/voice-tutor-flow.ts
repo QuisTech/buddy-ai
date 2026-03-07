@@ -65,7 +65,7 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
     outputSchema: VoiceTutorOutputSchema,
   },
   async (input) => {
-    // Optimization: Keep only the most recent context to save quota
+    // Optimization: Keep only the absolute minimum context to save quota
     const truncatedHistory = input.conversationHistory.slice(-4);
 
     const messages = truncatedHistory.map(msg => ({
