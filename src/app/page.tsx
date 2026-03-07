@@ -49,8 +49,8 @@ export default function StudyBuddyPage() {
     setIsThinking(true);
 
     try {
-      // Logic decision: If user says something like "Look at this" or "What is this?", we capture the camera
-      const visualTriggers = ["look", "see", "this", "diagram", "page", "what is", "explain"];
+      // Sharpened vision triggers to avoid accidental activation for general queries
+      const visualTriggers = ["look at", "see this", "this diagram", "this page", "explain this image", "what is in this", "scan this"];
       const needsVision = visualTriggers.some(t => text.toLowerCase().includes(t));
 
       let response: any;
@@ -78,6 +78,7 @@ export default function StudyBuddyPage() {
         }
       } else {
         // Normal conversational flow
+        // Important: use current state for history
         const history = messages.map(m => ({
           role: m.role === "user" ? "user" : "model" as any,
           content: m.content
@@ -93,15 +94,17 @@ export default function StudyBuddyPage() {
           audioUrl: result.responseAudio
         };
 
-        // Proactive: check for confusion and clarify
-        if (text.length > 30 && !needsVision) {
+        // Only clarify if it's a longer text that actually looks like a confusing study topic
+        const potentialConcepts = ["how", "why", "meaning", "process", "difference"];
+        const isAcademicQuery = potentialConcepts.some(c => text.toLowerCase().includes(c));
+
+        if (text.length > 50 && isAcademicQuery && !needsVision) {
           const clarification = await adaptiveClarification({
             concept: text,
             studentConfusion: text
           });
           if (clarification.clarificationType !== 'alternative-explanation') {
-            // We can append this to the response or add a new turn
-             response.content += `\n\nTo simplify: ${clarification.clarificationText}`;
+             response.content += `\n\n💡 Proactive Hint: ${clarification.clarificationText}`;
           }
         }
       }

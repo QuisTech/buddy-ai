@@ -81,13 +81,20 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
     });
 
     // 1. Generate text response from the conversational model
-    // In Genkit 1.x, 'system' and 'messages' are top-level properties.
     const textResponse = await ai.generate({
       model: 'googleai/gemini-2.5-flash',
-      system: `You are a helpful and patient study buddy. Your goal is to explain complex topics, answer questions, and provide clarifications in an easy-to-understand manner. Keep your responses concise and directly address the student's query. Remember to maintain context from the conversation history.`,
+      system: `You are a helpful and patient study buddy. Your goal is to explain complex topics, answer questions, and provide clarifications in an easy-to-understand manner. 
+      
+      CRITICAL INSTRUCTION ON CONTEXT:
+      - Always prioritize the user's LATEST query. 
+      - If the user changes the topic (e.g., switches from Physics to a website or software), pivot immediately.
+      - Do NOT try to force a connection to the previous topic unless the user explicitly asks you to compare them.
+      - Use conversation history only to understand references (like "it", "that", "why?") within the SAME topic.
+      
+      Keep your responses concise and directly address the student's query.`,
       messages: messages,
       config: {
-        maxOutputTokens: 200,
+        maxOutputTokens: 300,
       },
     });
 
