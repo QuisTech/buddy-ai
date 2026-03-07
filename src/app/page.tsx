@@ -55,8 +55,12 @@ export default function StudyBuddyPage() {
     setChatInput(""); 
 
     try {
-      // Vision triggers: pivot based on specific language
-      const visualTriggers = ["look at", "see this", "this diagram", "this page", "explain this image", "what is in this", "scan this"];
+      // Vision triggers: pivot based on specific language or direct requests to "see"
+      const visualTriggers = [
+        "look at", "see this", "this diagram", "this page", "explain this image", 
+        "what is in this", "scan this", "can you see", "what is this", 
+        "what am I showing", "is this correct", "capture this"
+      ];
       const needsVision = visualTriggers.some(t => text.toLowerCase().includes(t));
 
       let response: any;
