@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useCallback } from "react";
@@ -7,6 +8,7 @@ import ConversationList, { Message } from "@/components/ConversationList";
 import SessionSummary from "@/components/SessionSummary";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { 
   BookOpen, 
   History, 
@@ -16,7 +18,8 @@ import {
   StopCircle,
   Video,
   ChevronRight,
-  Target
+  Target,
+  Send
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -31,6 +34,7 @@ export default function StudyBuddyPage() {
   const [isListening, setIsListening] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [sessionActive, setSessionActive] = useState(false);
+  const [chatInput, setChatInput] = useState("");
   const [summary, setSummary] = useState<{
     topics: string[];
     keyTakeaways: string[];
@@ -47,6 +51,7 @@ export default function StudyBuddyPage() {
     const userMsg: Message = { role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
     setIsThinking(true);
+    setChatInput(""); // Clear input if it came from chat
 
     try {
       // Sharpened vision triggers to avoid accidental activation for general queries
@@ -126,6 +131,11 @@ export default function StudyBuddyPage() {
     } finally {
       setIsThinking(false);
     }
+  };
+
+  const handleChatSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleUserQuery(chatInput);
   };
 
   const toggleSession = () => {
@@ -241,11 +251,29 @@ export default function StudyBuddyPage() {
               <div className="flex-1 p-4 bg-muted/5 overflow-hidden">
                 <ConversationList messages={messages} />
               </div>
+              
               {sessionActive && (
-                <div className="p-4 bg-white border-t">
+                <div className="p-4 bg-white border-t space-y-4">
+                  <form onSubmit={handleChatSubmit} className="flex gap-2">
+                    <Input 
+                      placeholder="Ask anything..." 
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      className="rounded-full border-accent/20 focus-visible:ring-accent"
+                      disabled={isThinking}
+                    />
+                    <Button 
+                      type="submit" 
+                      size="icon" 
+                      className="rounded-full shrink-0"
+                      disabled={!chatInput.trim() || isThinking}
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </form>
                   <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                     <Sparkles className="w-3 h-3 text-accent" />
-                    <span>Try saying: "Explain this diagram" or "I'm confused about..."</span>
+                    <span>Try: "Explain this diagram" or type your follow-up questions.</span>
                   </div>
                 </div>
               )}
