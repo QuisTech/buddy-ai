@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useCallback } from "react";
@@ -16,13 +15,13 @@ import {
   Timer, 
   StopCircle,
   Video,
-  ChevronRight
+  ChevronRight,
+  Target
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 // Flows
 import { visualExplanation } from "@/ai/flows/visual-explanation-flow";
-import { voiceTutorFlow } from "@/ai/flows/voice-tutor-flow"; // Fixed: named export for client usage if available
 import { interactiveVoiceTutor } from "@/ai/flows/voice-tutor-flow";
 import { adaptiveClarification } from "@/ai/flows/adaptive-clarification-flow";
 import { dynamicAnnotation } from "@/ai/flows/dynamic-annotation-flow";
@@ -68,7 +67,7 @@ export default function StudyBuddyPage() {
           // Optional: Get annotations for extra points
           const annotationResult = await dynamicAnnotation({
             photoDataUri: photo,
-            explanation: "Visual explanation context"
+            explanation: text
           });
 
           response = {
@@ -168,7 +167,7 @@ export default function StudyBuddyPage() {
             </div>
           )}
           <Button 
-            variant={sessionActive ? "destructive" : "primary"} 
+            variant={sessionActive ? "destructive" : "default"} 
             onClick={toggleSession}
             className="rounded-full shadow-lg h-10 px-6 font-headline"
           >
