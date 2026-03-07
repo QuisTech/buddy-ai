@@ -61,16 +61,21 @@ export default function VoiceInterface({ onSpeak, isListening, isThinking, onTog
             try {
                 recognition.start();
             } catch (e) {
-                console.error("Failed to restart recognition:", e);
+                // Silently ignore if already started or in transition
             }
         }
       };
 
       recognition.onerror = (event: any) => {
+        // Ignore "aborted" and "no-speech" as they are common side effects of normal operation
+        if (event.error === 'aborted' || event.error === 'no-speech') return;
+
         console.error("Speech Recognition Error:", event.error);
         if (event.error === 'not-allowed') {
             // If permission denied, stop trying
-            recognitionRef.current.active = false;
+            if (recognitionRef.current) {
+              recognitionRef.current.active = false;
+            }
         }
       };
 
@@ -83,7 +88,11 @@ export default function VoiceInterface({ onSpeak, isListening, isThinking, onTog
     return () => {
         if (recognitionRef.current?.instance) {
             recognitionRef.current.active = false;
-            recognitionRef.current.instance.stop();
+            try {
+              recognitionRef.current.instance.stop();
+            } catch (e) {
+              // Ignore cleanup errors
+            }
         }
     };
   }, [onSpeak]);
@@ -100,7 +109,11 @@ export default function VoiceInterface({ onSpeak, isListening, isThinking, onTog
       }
     } else {
       recognitionRef.current.active = false;
-      recognitionRef.current.instance.stop();
+      try {
+        recognitionRef.current.instance.stop();
+      } catch (e) {
+        // Already stopped
+      }
       setCurrentText("");
     }
   }, [isListening]);
