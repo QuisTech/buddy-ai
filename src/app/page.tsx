@@ -55,7 +55,7 @@ export default function StudyBuddyPage() {
     setChatInput(""); 
 
     try {
-      // Vision triggers
+      // Vision triggers: pivot based on specific language
       const visualTriggers = ["look at", "see this", "this diagram", "this page", "explain this image", "what is in this", "scan this"];
       const needsVision = visualTriggers.some(t => text.toLowerCase().includes(t));
 
@@ -96,20 +96,21 @@ export default function StudyBuddyPage() {
           audioUrl: result.responseAudio
         };
 
-        const academicTriggers = ["how", "why", "meaning", "process", "difference", "explain"];
-        const isAcademicQuery = academicTriggers.some(c => text.toLowerCase().includes(c));
+        // Proactive adaptive clarification (throttled to save quota)
+        const academicTriggers = ["how", "why", "process", "difference"];
+        const isComplexQuery = academicTriggers.some(c => text.toLowerCase().includes(c));
 
-        if (text.length > 30 && isAcademicQuery && !needsVision) {
+        if (text.length > 40 && isComplexQuery && !needsVision) {
           try {
             const clarification = await adaptiveClarification({
               concept: text,
               studentConfusion: text
             });
             if (clarification.clarificationType !== 'alternative-explanation') {
-               response.content += `\n\n💡 Hint: ${clarification.clarificationText}`;
+               response.content += `\n\n💡 Buddy Tip: ${clarification.clarificationText}`;
             }
           } catch (e) {
-            // Silently fail clarification
+            // Silently ignore clarification failures to save primary conversation
           }
         }
       }
@@ -122,14 +123,14 @@ export default function StudyBuddyPage() {
       };
       setMessages(prev => [...prev, buddyMsg]);
 
-      // If there is audio, play it and manage isSpeaking state
+      // Handle Audio playback
       if (response.audioUrl) {
         const audio = new Audio(response.audioUrl);
         setIsSpeaking(true);
         audio.onended = () => setIsSpeaking(false);
         audio.onerror = () => setIsSpeaking(false);
         audio.play().catch(e => {
-          console.warn("Audio playback failed", e);
+          console.warn("Audio playback issue", e);
           setIsSpeaking(false);
         });
       }
@@ -142,7 +143,7 @@ export default function StudyBuddyPage() {
         variant: "destructive",
         title: isQuotaError ? "Buddy is taking a breather" : "Buddy hit a snag",
         description: isQuotaError 
-          ? "I've hit my question limit for the minute. Please wait 30-60 seconds and try again!" 
+          ? "I've hit my limit for this minute. Please wait 30 seconds and ask again!" 
           : "I'm having trouble processing that right now."
       });
     } finally {
@@ -158,13 +159,13 @@ export default function StudyBuddyPage() {
   const toggleSession = () => {
     if (sessionActive) {
       setSummary({
-        topics: ["AI Vision", "Interactive Tutoring", "Active Learning"],
+        topics: ["Visual Analysis", "Contextual Support", "Active Learning"],
         keyTakeaways: [
-          "Successfully used vision to analyze study materials.",
-          "Maintained a continuous dialogue through hands-free interaction.",
-          "Explored concepts with adaptive clarifications."
+          "Utilized vision for study material analysis.",
+          "Engaged in hands-free spoken dialogue.",
+          "Received context-aware academic support."
         ],
-        furtherStudy: ["Prompt Engineering", "Computer Vision Basics", "Voice UX Design"]
+        furtherStudy: ["Subject Fundamentals", "Conceptual Mapping", "Active Recall techniques"]
       });
       setIsListening(false);
     } else {
@@ -338,7 +339,7 @@ export default function StudyBuddyPage() {
       </main>
 
       <footer className="py-8 px-8 border-t bg-white text-center text-[10px] text-muted-foreground/60 font-medium uppercase tracking-[0.2em]">
-        <p>© 2026 Interactive Agent Prototyping • Multi-Modal Intelligence</p>
+        <p>© 2026 Dynamic Study Buddy • Multi-Modal Learning AI</p>
       </footer>
     </div>
   );

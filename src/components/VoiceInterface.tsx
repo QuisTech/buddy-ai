@@ -24,7 +24,7 @@ export default function VoiceInterface({
   const [isEngineActive, setIsEngineActive] = useState(false);
   const recognitionRef = useRef<any>(null);
   
-  // Track busy state in a ref for callbacks
+  // Track busy state in a ref for callbacks to avoid closure staleness
   const isBusyRef = useRef(false);
   useEffect(() => {
     isBusyRef.current = isThinking || isSpeaking;
@@ -44,20 +44,20 @@ export default function VoiceInterface({
     recognition.onstart = () => setIsEngineActive(true);
     recognition.onend = () => {
       setIsEngineActive(false);
-      // Auto-restart logic: if hands-free is ON and we're NOT busy, try to restart
+      // Robust restart: if master toggle is ON and we're NOT busy, try to restart
       if (recognitionRef.current?.shouldBeActive && !isBusyRef.current) {
         setTimeout(() => {
           try {
             recognition.start();
           } catch (e) {
-            // Ignore errors on rapid restarts
+            // BENIGN: Ignore rapid start failures
           }
-        }, 200);
+        }, 300);
       }
     };
 
     recognition.onresult = (event: any) => {
-      // Ignore results while the Buddy is talking or thinking
+      // Don't capture while Buddy is explaining or processing
       if (isBusyRef.current) return;
 
       let interimTranscript = "";
@@ -72,7 +72,6 @@ export default function VoiceInterface({
       }
 
       if (finalTranscript.trim()) {
-        // Stop recognition to process the command cleanly
         try { recognition.stop(); } catch (e) {}
         onSpeak(finalTranscript.trim());
         setCurrentText("");
@@ -82,8 +81,9 @@ export default function VoiceInterface({
     };
 
     recognition.onerror = (event: any) => {
-      if (['aborted', 'no-speech'].includes(event.error)) return;
-      console.error("Speech Recognition Error:", event.error);
+      // Ignore standard browser engine events that aren't real failures
+      if (['aborted', 'no-speech', 'audio-capture'].includes(event.error)) return;
+      console.warn("Speech engine warning:", event.error);
     };
 
     recognitionRef.current = {
@@ -99,7 +99,7 @@ export default function VoiceInterface({
     };
   }, [onSpeak]);
 
-  // Sync the engine with the master toggle and busy states
+  // Sync engine state with master toggle and Buddy's busy state
   useEffect(() => {
     if (!recognitionRef.current) return;
 

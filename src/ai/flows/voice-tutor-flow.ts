@@ -4,8 +4,6 @@
  *
  * - interactiveVoiceTutor - A function that handles real-time spoken interactions
  *   with a study buddy, generating both text and audio responses.
- * - VoiceTutorInput - The input type for the interactiveVoiceTutor function.
- * - VoiceTutorOutput - The return type for the interactiveVoiceTutor function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -67,44 +65,35 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
     outputSchema: VoiceTutorOutputSchema,
   },
   async (input) => {
-    // Optimization: Truncate history to save tokens and stay within quota
-    // Keeping the last 6 messages is usually enough for conversational context
-    const maxHistory = 6;
-    const truncatedHistory = input.conversationHistory.slice(-maxHistory);
+    // Optimization: Keep only the most recent context to save quota
+    const truncatedHistory = input.conversationHistory.slice(-4);
 
-    // Map history to Genkit 1.x message format with parts
     const messages = truncatedHistory.map(msg => ({
       role: msg.role === 'user' ? 'user' : 'model' as const,
       content: [{ text: msg.content }]
     }));
 
-    // Add the current user query
     messages.push({
       role: 'user',
       content: [{ text: input.query }],
     });
 
-    // 1. Generate text response from the conversational model
+    // 1. Generate text response
     const textResponse = await ai.generate({
       model: 'googleai/gemini-2.5-flash',
-      system: `You are a helpful and patient study buddy. Your goal is to explain complex topics, answer questions, and provide clarifications in an easy-to-understand manner. 
-      
-      CRITICAL INSTRUCTION ON CONTEXT:
-      - Always prioritize the user's LATEST query. 
-      - If the user changes the topic (e.g., switches from Physics to a website or software), pivot immediately.
-      - Do NOT try to force a connection to the previous topic unless the user explicitly asks you to compare them.
-      - Use conversation history only to understand references (like "it", "that", "why?") within the SAME topic.
-      
-      Keep your responses concise and directly address the student's query.`,
+      system: `You are a concise study buddy. 
+      - Pivot immediately if the user switches topics.
+      - Keep answers under 3 sentences for better flow.
+      - Use history only for direct references like "it" or "why?".`,
       messages: messages,
       config: {
-        maxOutputTokens: 300,
+        maxOutputTokens: 250,
       },
     });
 
-    const responseText = textResponse.text || "I'm sorry, I couldn't generate a text response.";
+    const responseText = textResponse.text || "I'm sorry, I couldn't process that.";
 
-    // 2. Convert the generated text response to speech (with quota resiliency)
+    // 2. Convert to speech (resilient to quota)
     let responseAudio: string | undefined = undefined;
     try {
       const speechResponse = await ai.generate({
@@ -129,8 +118,7 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
         responseAudio = 'data:audio/wav;base64,' + wavAudioBase64;
       }
     } catch (error) {
-      // If TTS fails (quota exhausted, etc.), we still return the text response
-      console.warn('TTS generation failed, proceeding with text only:', error);
+      console.warn('TTS quota likely reached, proceeding with text only.');
     }
 
     return {
