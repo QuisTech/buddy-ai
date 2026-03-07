@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
-import { Mic, MicOff, Sparkles } from "lucide-react";
+import { Mic, MicOff, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface VoiceInterfaceProps {
   onSpeak: (text: string) => void;
-  isListening: boolean; // Master "Hands-free Mode" switch
+  isListening: boolean; // Master "Hands-free Mode" toggle
   isThinking: boolean;
   isSpeaking: boolean;
   onToggleMic: () => void;
@@ -21,71 +21,75 @@ export default function VoiceInterface({
   onToggleMic 
 }: VoiceInterfaceProps) {
   const [currentText, setCurrentText] = useState("");
+  const [isEngineActive, setIsEngineActive] = useState(false);
   const recognitionRef = useRef<any>(null);
   
-  // Ref for internal state checking in callbacks
+  // Track busy state in a ref for callbacks
   const isBusyRef = useRef(false);
   useEffect(() => {
     isBusyRef.current = isThinking || isSpeaking;
   }, [isThinking, isSpeaking]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
+    if (typeof window === "undefined") return;
 
-      recognition.onresult = (event: any) => {
-        // Ignore input if Buddy is speaking or thinking to prevent feedback loops
-        if (isBusyRef.current) return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
 
-        let interimTranscript = "";
-        let finalTranscript = "";
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
 
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
+    recognition.onstart = () => setIsEngineActive(true);
+    recognition.onend = () => {
+      setIsEngineActive(false);
+      // Auto-restart logic: if hands-free is ON and we're NOT busy, try to restart
+      if (recognitionRef.current?.shouldBeActive && !isBusyRef.current) {
+        setTimeout(() => {
+          try {
+            recognition.start();
+          } catch (e) {
+            // Ignore errors on rapid restarts
           }
-        }
+        }, 200);
+      }
+    };
 
-        if (finalTranscript.trim()) {
-          // Stop recognition immediately when a result is found to cleanly hand off to the Buddy
-          try { recognition.stop(); } catch (e) {}
-          onSpeak(finalTranscript.trim());
-          setCurrentText("");
+    recognition.onresult = (event: any) => {
+      // Ignore results while the Buddy is talking or thinking
+      if (isBusyRef.current) return;
+
+      let interimTranscript = "";
+      let finalTranscript = "";
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
         } else {
-          setCurrentText(interimTranscript);
+          interimTranscript += event.results[i][0].transcript;
         }
-      };
+      }
 
-      recognition.onend = () => {
-        // Robust auto-restart logic for continuous hands-free mode
-        // Only restart if hands-free is enabled and Buddy is NOT busy
-        if (recognitionRef.current?.shouldBeActive && !isBusyRef.current) {
-          setTimeout(() => {
-            try {
-              recognition.start();
-            } catch (e) {
-              // Ignore restart errors
-            }
-          }, 100);
-        }
-      };
+      if (finalTranscript.trim()) {
+        // Stop recognition to process the command cleanly
+        try { recognition.stop(); } catch (e) {}
+        onSpeak(finalTranscript.trim());
+        setCurrentText("");
+      } else {
+        setCurrentText(interimTranscript);
+      }
+    };
 
-      recognition.onerror = (event: any) => {
-        if (event.error === 'aborted' || event.error === 'no-speech') return;
-        console.error("Speech Recognition Error:", event.error);
-      };
+    recognition.onerror = (event: any) => {
+      if (['aborted', 'no-speech'].includes(event.error)) return;
+      console.error("Speech Recognition Error:", event.error);
+    };
 
-      recognitionRef.current = {
-        instance: recognition,
-        shouldBeActive: false
-      };
-    }
+    recognitionRef.current = {
+      instance: recognition,
+      shouldBeActive: isListening
+    };
 
     return () => {
       if (recognitionRef.current?.instance) {
@@ -95,37 +99,28 @@ export default function VoiceInterface({
     };
   }, [onSpeak]);
 
-  // Master logic to handle starting/stopping recognition based on all states
+  // Sync the engine with the master toggle and busy states
   useEffect(() => {
     if (!recognitionRef.current) return;
 
-    const shouldActuallyListen = isListening && !isThinking && !isSpeaking;
+    recognitionRef.current.shouldBeActive = isListening;
+    const shouldRun = isListening && !isThinking && !isSpeaking;
 
-    if (shouldActuallyListen) {
-      recognitionRef.current.shouldBeActive = true;
+    if (shouldRun && !isEngineActive) {
       try {
         recognitionRef.current.instance.start();
-      } catch (e) {
-        // Already started or busy
-      }
-    } else {
-      // If we're not supposed to be listening (either hands-free is off OR buddy is busy)
-      if (!isListening) {
-        recognitionRef.current.shouldBeActive = false;
-      }
+      } catch (e) {}
+    } else if (!shouldRun && isEngineActive) {
       try {
         recognitionRef.current.instance.stop();
-      } catch (e) {
-        // Already stopped
-      }
-      setCurrentText("");
+      } catch (e) {}
     }
-  }, [isListening, isThinking, isSpeaking]);
+  }, [isListening, isThinking, isSpeaking, isEngineActive]);
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-md">
       <div className="relative">
-        {(isListening && !isThinking && !isSpeaking) && (
+        {isEngineActive && (
           <div className="absolute -inset-4 bg-primary/20 rounded-full animate-ping" />
         )}
         <Button
@@ -133,13 +128,15 @@ export default function VoiceInterface({
           variant={isListening ? "destructive" : "default"}
           className={cn(
             "w-24 h-24 rounded-full shadow-2xl transition-all duration-500",
-            (isListening && !isThinking && !isSpeaking) && "scale-110 pulse-primary",
+            isEngineActive && "scale-110 pulse-primary",
             (isThinking || isSpeaking) && "opacity-50 grayscale cursor-wait"
           )}
           onClick={onToggleMic}
           disabled={isThinking || isSpeaking}
         >
-          {isListening ? (
+          {isThinking || isSpeaking ? (
+            <Loader2 className="w-12 h-12 animate-spin" />
+          ) : isListening ? (
             <Mic className="w-12 h-12" />
           ) : (
             <MicOff className="w-12 h-12" />
@@ -147,27 +144,28 @@ export default function VoiceInterface({
         </Button>
       </div>
 
-      <div className="text-center h-16 flex flex-col items-center justify-center gap-2">
+      <div className="text-center h-20 flex flex-col items-center justify-center gap-2">
         {isThinking || isSpeaking ? (
-          <div className="flex items-center gap-2 text-primary font-medium animate-pulse">
-            <Sparkles className="w-5 h-5 text-accent" />
-            <span className="font-headline text-lg italic">
+          <div className="flex flex-col items-center gap-2 text-primary font-medium">
+            <Sparkles className="w-6 h-6 text-accent animate-bounce" />
+            <span className="font-headline text-lg italic animate-pulse">
               {isSpeaking ? "Buddy is explaining..." : "Buddy is processing..."}
             </span>
           </div>
         ) : (
           <>
             <p className={cn(
-                "text-sm font-medium transition-colors duration-300",
+                "text-base font-medium transition-colors duration-300 px-4",
                 isListening ? "text-primary" : "text-muted-foreground"
             )}>
               {isListening 
-                ? (currentText || "I'm listening for your questions...") 
+                ? (currentText || "I'm listening... speak naturally!") 
                 : "Hands-free mode is off. Tap to start."}
             </p>
-            {isListening && (
-                <span className="text-[10px] text-muted-foreground uppercase tracking-tighter">
-                    Listening continuously
+            {isListening && isEngineActive && (
+                <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                    Mic Active
                 </span>
             )}
           </>

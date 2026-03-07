@@ -31,9 +31,9 @@ import { dynamicAnnotation } from "@/ai/flows/dynamic-annotation-flow";
 
 export default function StudyBuddyPage() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isListening, setIsListening] = useState(false); // Controls hands-free mode toggle
+  const [isListening, setIsListening] = useState(false); 
   const [isThinking, setIsThinking] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false); // Tracks when Buddy's voice is playing
+  const [isSpeaking, setIsSpeaking] = useState(false); 
   const [sessionActive, setSessionActive] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [summary, setSummary] = useState<{
@@ -122,7 +122,7 @@ export default function StudyBuddyPage() {
       };
       setMessages(prev => [...prev, buddyMsg]);
 
-      // If there is audio, play it and manage isSpeaking state for hands-free loop
+      // If there is audio, play it and manage isSpeaking state
       if (response.audioUrl) {
         const audio = new Audio(response.audioUrl);
         setIsSpeaking(true);
