@@ -19,7 +19,8 @@ import {
   Video,
   Target,
   Send,
-  Zap
+  Zap,
+  Mic
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -130,7 +131,6 @@ export default function StudyBuddyPage() {
       });
     } finally {
       setIsThinking(false);
-      // Voice remains active if it was already active, allowing hands-free follow-ups
     }
   };
 
@@ -154,7 +154,7 @@ export default function StudyBuddyPage() {
     } else {
       setSummary(null);
       setMessages([]);
-      setIsListening(true); // Default to listening in a new session
+      setIsListening(true); 
     }
     setSessionActive(!sessionActive);
   };
