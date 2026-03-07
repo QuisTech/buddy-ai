@@ -5,6 +5,7 @@ import CameraView, { CameraViewHandle } from "@/components/CameraView";
 import VoiceInterface from "@/components/VoiceInterface";
 import ConversationList, { Message } from "@/components/ConversationList";
 import SessionSummary from "@/components/SessionSummary";
+import { DirectorMode } from "@/components/DirectorMode/DirectorMode";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ export default function StudyBuddyPage() {
   const [isThinking, setIsThinking] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false); 
   const [sessionActive, setSessionActive] = useState(false);
+  const [directorMode, setDirectorMode] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [summary, setSummary] = useState<{
     topics: string[];
@@ -353,9 +355,13 @@ export default function StudyBuddyPage() {
         </div>
       </main>
 
-      <footer className="py-8 px-8 border-t bg-white text-center text-[10px] text-muted-foreground/60 font-medium uppercase tracking-[0.2em]">
+      <footer className="py-8 px-8 border-t bg-white text-center text-[10px] text-muted-foreground/60 font-medium uppercase tracking-[0.2em] flex items-center justify-center gap-4">
         <p>© 2026 Buddy AI • Hands-Free Visual Tutor</p>
+        <button onClick={() => setDirectorMode(true)} className="hover:text-primary transition-colors focus:outline-none">
+          [ Demo Mode ]
+        </button>
       </footer>
+      {directorMode && <DirectorMode onClose={() => setDirectorMode(false)} />}
     </div>
   );
 }
