@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-student",
+      "description": "A student using a tablet to study with an AI assistant overlay",
+      "imageUrl": "https://picsum.photos/seed/study1/1200/800",
+      "imageHint": "student studying"
+    },
+    {
+      "id": "diagram-example",
+      "description": "A complex scientific diagram being analyzed",
+      "imageUrl": "https://picsum.photos/seed/science/800/600",
+      "imageHint": "science diagram"
+    }
+  ]
+}
