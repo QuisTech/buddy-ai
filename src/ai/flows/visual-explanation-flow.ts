@@ -9,7 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
+import {vertexAI} from '@genkit-ai/vertexai';
 import { Buffer } from 'buffer';
 import wav from 'wav';
 
@@ -101,7 +101,7 @@ const visualExplanationFlow = ai.defineFlow(
     let audioDataUri: string | undefined = undefined;
     try {
       const { media } = await ai.generate({
-        model: googleAI.model('gemini-2.5-flash-preview-tts'),
+        model: 'vertexai/gemini-1.5-flash',
         prompt: explanationText,
         config: {
           responseModalities: ['AUDIO'],

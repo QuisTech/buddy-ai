@@ -352,7 +352,7 @@ export default function StudyBuddyPage() {
                   <BrainCircuit className="w-5 h-5 text-accent" />
                   <span className="text-[10px] font-black text-accent/70 uppercase">Model</span>
                 </div>
-                <p className="text-2xl font-headline font-bold truncate">Gemini 2.5</p>
+                <p className="text-2xl font-headline font-bold truncate">Gemini 1.5</p>
              </Card>
           </div>
         </div>

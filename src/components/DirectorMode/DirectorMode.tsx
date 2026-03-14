@@ -36,7 +36,7 @@ const SCRIPT: ScriptStep[] = [
     { type: 'cursor', targetId: 'btn-send-chat', delay: 500 },
     { type: 'click', targetId: 'btn-send-chat', delay: 500 },
     { type: 'log', text: '[Vision] Capturing frame from webcam...' },
-    { type: 'log', text: '[Genkit] Routing request to Gemini 2.5 Flash / Vision.' },
+    { type: 'log', text: '[Genkit] Routing request to Gemini 1.5 Flash / Vision.' },
     
     // --- GENERATING RESPONSE ---
     { type: 'subtitle', text: 'Step 3: Real-Time Explanation', delay: 2000 },

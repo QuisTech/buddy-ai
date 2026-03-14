@@ -30,9 +30,9 @@ graph TD
     Browser[Next.js Frontend / React 19]
     Server[Next.js Server Actions]
     Genkit[Genkit AI Orchestration]
-    GeminiVision[Gemini 2.5 Flash - Vision]
-    GeminiTTS[Gemini 2.5 Flash Preview - TTS]
-    GeminiImage[Gemini 2.5 Flash Image - Annotations]
+    GeminiVision[Gemini 1.5 Flash - Vision]
+    GeminiTTS[Gemini 1.5 Flash - TTS]
+    GeminiImage[Gemini 1.5 Flash - Annotations]
 
     User --> Browser
     Webcam -.-> Browser
@@ -55,15 +55,15 @@ graph TD
 
 We built Buddy AI using **Next.js 15** and **React 19** to ensure a high-performance, responsive interface. The AI orchestration is powered by **Genkit**, managing several specialized flows:
 
-- **Gemini 2.5 Flash** handles the core conversational reasoning and vision.
-- **Gemini 2.5 Flash Image** powers the visual analysis and image-to-image annotation.
-- **Gemini 2.5 Flash Preview TTS** provides the spoken voice responses.
+- **Gemini 1.5 Flash** handles the core conversational reasoning and vision.
+- **Gemini 1.5 Flash** also powers the visual analysis and image-to-image annotation.
+- **Gemini 1.5 Flash** provides the spoken voice responses via its multimodal capabilities.
 
 ### Google Cloud Integration (Proof of Usage)
 
 This project is a deep integration of Google Cloud's Generative AI ecosystem:
 
-- **AI Services**: Orchestrated via **Genkit**, we consume Vertex AI-grade models (Gemini 2.5 family) for vision, text, and speech synthesis.
+- **AI Services**: Orchestrated via **Genkit**, we consume direct **Vertex AI** models (Gemini 1.5 family) for vision, text, and speech synthesis.
 - **Deployment**: Hosted on **Firebase App Hosting**, leveraging Google Cloud's serverless infrastructure (Cloud Run) for optimized performance.
 - **Automated Cloud Deployment (Bonus Points)**: We use Infrastructure-as-Code (IaC) to automatically provision and deploy our Next.js backend and frontend instances in response to cloud triggers. See the [apphosting.yaml](https://github.com/QuisTech/buddy-ai/blob/main/apphosting.yaml) file for the automated deployment configuration for Firebase App Hosting.
 - **Published Content (Bonus Points)**: Check out our [Demo Video / Blog Post](https://www.linkedin.com/posts/macmarquis_geminiliveagentchallenge-activity-7436027476683776000-dFIm) covering how Buddy AI was built with Google AI models and Google Cloud. _This piece of content was created for the purposes of entering this hackathon. #GeminiLiveAgentChallenge_
@@ -88,8 +88,8 @@ We learned that multimodal AI is most powerful when it disappears into the backg
 
 ## Reproducible Testing
 
-1. **Prerequisites**: Node.js installed and a Google AI Studio API Key.
-2. **Environment Setup**: Add `GEMINI_API_KEY=your_key` to `.env`.
+1. **Prerequisites**: Node.js installed and a Google Cloud Project with Vertex AI API enabled.
+2. **Environment Setup**: Run `gcloud auth application-default login` to authenticate with your Google Cloud account.
 3. **Installation & Launch**: Run `npm install && npm run dev`.
 4. **Testing the Live Agent**:
    - Click **"Start Session"**.
@@ -102,6 +102,6 @@ We learned that multimodal AI is most powerful when it disappears into the backg
 
 - **Frameworks**: Next.js 15, React 19
 - **AI Orchestration**: Genkit
-- **Models**: Gemini 2.5 (Flash, Image, TTS)
+- **Models**: Vertex AI Gemini 1.5 Flash
 - **Styling**: Tailwind CSS, ShadCN UI
 - **Hosting**: Firebase App Hosting (Google Cloud)

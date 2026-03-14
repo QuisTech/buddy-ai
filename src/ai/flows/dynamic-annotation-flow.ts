@@ -11,13 +11,13 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
+import {vertexAI} from '@genkit-ai/vertexai';
 
 const DynamicAnnotationInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      "A photo of study material, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A photo of study material, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'"
     ),
   explanation: z.string().describe("The explanation text to guide the annotations."),
 });
@@ -62,19 +62,21 @@ const dynamicAnnotationFlow = ai.defineFlow(
   },
   async (input) => {
     // Call the prompt action directly.
-    const { output, response } = await dynamicAnnotationPrompt(input, {
-      model: googleAI.model('gemini-2.5-flash-image'),
+    const result = await dynamicAnnotationPrompt(input, {
+      model: 'vertexai/gemini-1.5-flash',
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },
-    });
+    }) as any;
+
+    const { output, response } = result;
 
     if (!output) {
       throw new Error('No output received from the model.');
     }
 
-    // Try to find the image in the structured output or the model's generated media parts
-    const mediaPart = response.content?.find((p) => !!p.media);
+    // Try to find the image in the generated media parts
+    const mediaPart = response.content?.find((p: any) => !!p.media);
     const annotatedImageDataUri = output.annotatedImageDataUri || mediaPart?.media?.url;
     
     if (!annotatedImageDataUri) {

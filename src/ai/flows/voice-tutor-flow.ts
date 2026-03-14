@@ -9,7 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {googleAI} from '@genkit-ai/google-genai';
+import {vertexAI} from '@genkit-ai/vertexai';
 import wav from 'wav';
 
 const VoiceTutorInputSchema = z.object({
@@ -70,7 +70,7 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
     const truncatedHistory = input.conversationHistory.slice(-4);
 
     const messages = truncatedHistory.map(msg => ({
-      role: msg.role === "user" ? "user" : "model" as const,
+      role: (msg.role === "user" ? "user" : "model") as "user" | "model",
       content: [{ text: msg.content }]
     }));
 
@@ -81,7 +81,7 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
 
     // 1. Generate text response
     const textResponse = await ai.generate({
-      model: 'googleai/gemini-2.5-flash',
+      model: 'vertexai/gemini-1.5-flash',
       system: `You are an AI study buddy WITH VISUAL CAPABILITIES. 
       - You can see materials (diagrams, text, notes) through the user's camera.
       - NEVER say you are "text-based only" or that you "cannot see."
@@ -100,7 +100,7 @@ const interactiveVoiceTutorFlow = ai.defineFlow(
     let responseAudio: string | undefined = undefined;
     try {
       const speechResponse = await ai.generate({
-        model: googleAI.model('gemini-2.5-flash-preview-tts'),
+        model: 'vertexai/gemini-1.5-flash', // Vertex AI multimodal usage
         config: {
           responseModalities: ['AUDIO'],
           speechConfig: {
